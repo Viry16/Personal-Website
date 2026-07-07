@@ -10,7 +10,7 @@ export const revalidate = 3600
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-(--color-bg) selection:bg-(--color-text-primary) selection:text-(--color-surface)">
+    <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
       <div className="mx-auto max-w-4xl px-6 md:px-12 pt-16 md:pt-24 pb-32">
         <PageHeader eyebrow="Portfolio" title="About Me" titleFont="font-serif" />
 
@@ -20,7 +20,7 @@ export default function AboutPage() {
               I&apos;m Excel Viryan — an enthusiastic, curious software developer
               with a foundation in multimedia design and a deep focus on Artificial
               Intelligence. I&apos;m a Sarjana Komputer (S.Kom.) candidate at
-              President University in Cikarang, with a 3.86/4.00 GPA.
+              President University in Cikarang, with a 3.87/4.00 GPA.
             </p>
             <p className="text-lg leading-relaxed">
               I enjoy tackling complex challenges through intuitive UI/UX and smart

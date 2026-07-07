@@ -9,5 +9,5 @@ export const SITE = {
   linkedin: "https://linkedin.com/in/excelviryan",
   instagram: "https://instagram.com/excelviryan12",
   resume: "/assets/cv/CV_Excel%20Viryan.pdf",
-  logo: "/assets/image/logo.png",
+  logo: "/assets/image/logo/logo.svg",
 } as const

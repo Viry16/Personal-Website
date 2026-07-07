@@ -10,7 +10,7 @@ import { ContactCTA } from "@/components/sections/ContactCTA"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-(--color-bg) selection:bg-(--color-text-primary) selection:text-(--color-surface)">
+    <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
       
       <div className="mx-auto max-w-5xl px-6 md:px-12 pb-32">
         <HomePreview />

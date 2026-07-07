@@ -1,7 +1,7 @@
 import Link from "next/link"
-import Image from "next/image"
 import { FileText, Mail, ArrowRight } from "lucide-react"
 import { SITE } from "@/lib/site"
+import ProfileCard from "@/components/ui/ProfileCard"
 import {
   GitHubIcon,
   InstagramIcon,
@@ -81,18 +81,9 @@ export function HomePreview() {
           </div>
         </div>
 
-        {/* Right Side: Profile Image — centered on mobile, custom size on desktop */}
+        {/* Right Side: Interactive glassmorphic profile card */}
         <div className="flex-shrink-0 self-center md:self-auto">
-          <div className="relative h-40 w-40 sm:h-48 sm:w-48 md:h-70 md:w-54 rounded-[28px] md:rounded-[32px] overflow-hidden border border-(--color-border) shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-            <Image
-              src="/assets/Profile.webp"
-              alt={SITE.name}
-              fill
-              sizes="(min-width: 768px) 400px, (min-width: 640px) 192px, 160px"
-              className="object-cover"
-              priority
-            />
-          </div>
+          <ProfileCard image="/assets/Profile.webp" />
         </div>
 
       </div>

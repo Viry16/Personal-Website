@@ -43,7 +43,7 @@ export default function ProjectsPage() {
       : PROJECTS.filter((p) => p.type === filter).length
 
   return (
-    <main className="min-h-screen bg-(--color-bg) selection:bg-(--color-text-primary) selection:text-(--color-surface)">
+    <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
       <div className="mx-auto max-w-5xl px-6 md:px-12 pt-16 md:pt-24 pb-32">
         <PageHeader
           eyebrow="Portfolio"
