@@ -12,7 +12,7 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
       <div className="mx-auto max-w-4xl px-6 md:px-12 pt-16 md:pt-24 pb-32">
-        <PageHeader eyebrow="Portfolio" title="About Me" titleFont="font-serif" />
+        <PageHeader eyebrow="Portfolio" title="About Me" titleFont="font-display" />
 
         <div className="mb-16 flex flex-col-reverse md:flex-row gap-8 items-start">
           <div className="flex-1 space-y-6 text-(--color-text-primary)">

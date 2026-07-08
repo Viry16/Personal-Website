@@ -89,13 +89,14 @@ export default function ProjectsPage() {
           </p>
         </div>
 
-        {/* key on activeTab re-triggers the fade-in when the filter changes */}
+        {/* key on activeTab remounts the grid so cards re-run their reveal
+            (with stagger) each time the filter changes */}
         <div
           key={activeTab}
-          className="grid animate-[fadeIn_0.3s_ease-out] grid-cols-1 gap-8 md:grid-cols-2"
+          className="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2"
         >
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.title} {...project} />
+          {filteredProjects.map((project, i) => (
+            <ProjectCard key={project.title} {...project} index={i} />
           ))}
         </div>
       </div>

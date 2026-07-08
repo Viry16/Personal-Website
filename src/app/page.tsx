@@ -7,17 +7,18 @@ import { WorkSection } from "@/components/sections/WorkSection"
 import { CodeActivitySection } from "@/components/sections/CodeActivitySection"
 import { FeaturedProjects } from "@/components/sections/FeaturedProjects"
 import { ContactCTA } from "@/components/sections/ContactCTA"
+import { Reveal } from "@/components/ui/Reveal"
 
 export default function Home() {
   return (
     <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
-      
+
       <div className="mx-auto max-w-5xl px-6 md:px-12 pb-32">
         <HomePreview />
-        <WorkSection />
-        <CodeActivitySection />
+        <Reveal><WorkSection /></Reveal>
+        <Reveal><CodeActivitySection /></Reveal>
         <FeaturedProjects />
-        <ContactCTA />
+        <Reveal><ContactCTA /></Reveal>
       </div>
 
       <BottomDock />

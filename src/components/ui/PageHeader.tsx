@@ -6,7 +6,7 @@ interface PageHeaderProps {
   eyebrow: string
   title: string
   description?: string
-  /** Font utility for the page title, e.g. "font-serif" or "font-display" */
+  /** Font utility for the page title, e.g. "font-display" */
   titleFont?: string
 }
 

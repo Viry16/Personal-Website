@@ -47,7 +47,7 @@ export function WorkSection() {
   return (
     <section id="work" className="py-16 md:py-24 border-t border-(--color-border)">
       <div className="w-full">
-        <h2 className="mb-12 flex items-center gap-3 font-serif text-3xl font-bold text-(--color-text-primary)">
+        <h2 className="mb-12 flex items-center gap-3 font-display text-3xl font-bold text-(--color-text-primary)">
           Experience
         </h2>
 

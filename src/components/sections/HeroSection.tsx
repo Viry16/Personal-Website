@@ -24,7 +24,7 @@ export function HeroSection() {
 
       {/* Foreground — perfectly centered card */}
       <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-6 py-16">
-        <ProfileCard image="/assets/Profile.webp" />
+        <ProfileCard />
       </div>
     </section>
   )

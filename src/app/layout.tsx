@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Inter,
-  JetBrains_Mono,
-  Space_Grotesk,
-  Playfair_Display,
-} from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SiteDotField } from "@/components/SiteDotField";
 import { SITE } from "@/lib/site";
@@ -20,15 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-// Geometric display face for tech/code section titles
+// Single distinctive display face for every section title
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
-  subsets: ["latin"],
-});
-
-// Elegant serif for experience/about section titles
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
@@ -45,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} ${playfair.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

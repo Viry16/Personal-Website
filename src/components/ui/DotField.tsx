@@ -31,8 +31,13 @@ function useDotFieldCanvas(
   const glowOpacity = useRef(0);
   const engagement = useRef(0);
   
+  // Keep the latest props available to the animation loop without writing to
+  // a ref during render (which React flags). The loop reads propsRef.current
+  // each frame; syncing in an effect is fine — a one-frame lag is invisible.
   const propsRef = useRef(props);
-  propsRef.current = props;
+  useEffect(() => {
+    propsRef.current = props;
+  });
 
   const rebuildRef = useRef<(() => void) | null>(null);
 

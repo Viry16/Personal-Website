@@ -39,10 +39,8 @@
 @theme inline {
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
-  /* Section-title display faces: `font-display` (tech/code) and
-     `font-serif` (experience/about). */
+  /* Single display face used for every section title (`font-display`). */
   --font-display: var(--font-space-grotesk);
-  --font-serif: var(--font-playfair);
 }
 
 body {

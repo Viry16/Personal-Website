@@ -31,7 +31,7 @@ export function ContactCTA() {
             Available for new opportunities
           </span>
 
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-(--color-text-primary) md:text-4xl">
+          <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-(--color-text-primary) md:text-4xl">
             Let&apos;s build something together
           </h2>
           <p className="mx-auto mt-4 max-w-md text-lg leading-relaxed text-(--color-text-secondary)">
