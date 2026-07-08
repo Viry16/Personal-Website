@@ -80,13 +80,11 @@ export function HomePreview() {
             </Link>
           </div>
         </div>
-
         {/* Right Side: Interactive glassmorphic profile card */}
-        <div className="flex-shrink-0 self-center md:self-auto">
-          <ProfileCard image="/assets/Profile.webp" />
+        <div className="flex-shrink-0 self-center md:self-auto origin-top md:origin-top">
+          <ProfileCard scale={0.70} />
         </div>
-
       </div>
     </section>
-  )
+  ) 
 }

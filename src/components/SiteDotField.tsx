@@ -20,6 +20,8 @@ export function SiteDotField() {
 
   return (
     <DotField
+      dotSpacing={26}
+      dotRadius={1.2}
       // Dot gradient: vivid green→lime on dark; deeper, calmer green→teal on light
       gradientFrom={isLight ? "rgba(22, 163, 74, 0.30)" : "rgba(0, 255, 72, 0.32)"}
       gradientTo={isLight ? "rgba(13, 148, 136, 0.22)" : "rgba(212, 255, 0, 0.22)"}
