@@ -58,13 +58,16 @@ export function ProjectCard({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 28, filter: "blur(6px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-60px" }}
+      whileHover={{ y: -6 }}
       transition={{
         duration: 0.6,
         ease: [0.22, 1, 0.36, 1],
         delay: index * 0.08,
+        // hover lift uses its own snappy spring, independent of the reveal
+        y: { type: "spring", stiffness: 300, damping: 22 },
       }}
       className="group flex flex-col"
     >

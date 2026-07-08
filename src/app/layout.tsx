@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MotionProvider } from "@/components/MotionProvider";
 import { SiteDotField } from "@/components/SiteDotField";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -39,10 +40,6 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {/* Global interactive dot background — fixed behind every page.
-              pointer-events-none guarantees it never blocks clicks/scrolls;
-              DotField reads the cursor from a window-level listener, so it
-              stays interactive regardless. */}
           {/* Global interactive dot background — theme-aware (glow + palette
               swap between light/dark). pointer-events-none so it never blocks
               clicks/scrolls; DotField reads the cursor from a window listener. */}
@@ -50,10 +47,13 @@ export default function RootLayout({
             <SiteDotField />
           </div>
 
-          {/* All page content renders above the background */}
-          <div className="relative z-10 flex flex-1 flex-col">
-            {children}
-          </div>
+          {/* All page content renders above the background.
+              MotionProvider = global Framer Motion config (reduced-motion aware). */}
+          <MotionProvider>
+            <div className="relative z-10 flex flex-1 flex-col">
+              {children}
+            </div>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

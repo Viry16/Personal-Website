@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { motion } from "motion/react"
 import { Home, FolderCode, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SITE } from "@/lib/site"
@@ -20,7 +21,11 @@ export function BottomDock() {
 
   return (
     <div className="fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-50">
-      <nav
+      {/* Springy rise from below the viewport edge on first load */}
+      <motion.nav
+        initial={{ y: 90, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 24, delay: 0.5 }}
         className="flex items-center gap-1 md:gap-2 rounded-full border border-(--color-border) bg-(--color-surface)/80 px-2 py-2 md:px-4 md:py-2 shadow-xl shadow-black/10 backdrop-blur-xl transition-colors duration-300"
         aria-label="Main Navigation"
       >
@@ -67,7 +72,7 @@ export function BottomDock() {
         })}
         <div className="w-px h-7 md:h-8 bg-(--color-border) mx-0.5 md:mx-1" />
         <ThemeToggle />
-      </nav>
+      </motion.nav>
     </div>
   )
 }

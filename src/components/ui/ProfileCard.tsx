@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface Photo {
   id: string;
@@ -222,17 +222,6 @@ export default function ProfileCard({
     pointerEvents: "none",
   };
 
-  const badgeStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "22px",
-    height: "22px",
-    borderRadius: "999px",
-    background: accent,
-    flex: "0 0 auto",
-  };
-
   const fan = [
     { r: 0, x: 0, y: 0, s: 1 },
     { r: -6, x: -20, y: 12, s: 0.95 },
@@ -244,7 +233,7 @@ export default function ProfileCard({
     <div 
       className="font-sans relative" 
       style={{ 
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        fontFamily: "var(--font-sans)",
         width: 340 * scale,
         height: 500 * scale,
       }}
