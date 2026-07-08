@@ -6,7 +6,7 @@ import {
   Playfair_Display,
 } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import DotField from "@/components/ui/DotField";
+import { SiteDotField } from "@/components/SiteDotField";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -54,12 +54,11 @@ export default function RootLayout({
               pointer-events-none guarantees it never blocks clicks/scrolls;
               DotField reads the cursor from a window-level listener, so it
               stays interactive regardless. */}
+          {/* Global interactive dot background — theme-aware (glow + palette
+              swap between light/dark). pointer-events-none so it never blocks
+              clicks/scrolls; DotField reads the cursor from a window listener. */}
           <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
-            <DotField
-              gradientFrom="rgba(22, 163, 74, 0.35)"
-              gradientTo="rgba(16, 185, 129, 0.22)"
-              glowColor="#16A34A"
-            />
+            <SiteDotField />
           </div>
 
           {/* All page content renders above the background */}
