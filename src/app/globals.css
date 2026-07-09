@@ -58,3 +58,8 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Lock page scroll while a modal overlay is open */
+body.modal-open {
+  overflow: hidden;
+}

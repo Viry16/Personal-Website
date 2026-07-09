@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react"
 import { BottomDock } from "@/components/BottomDock"
 import { ProjectCard } from "@/components/ui/ProjectCard"
+import { ProjectModal } from "@/components/ui/ProjectModal"
 import { PageHeader } from "@/components/ui/PageHeader"
-import { PROJECTS, type ProjectType } from "@/lib/projects"
+import { PROJECTS, type Project, type ProjectType } from "@/lib/projects"
 import { cn } from "@/lib/utils"
 
 type Filter = ProjectType | "All"
@@ -28,6 +29,7 @@ const TAB_COPY: Record<Filter, { heading: string; blurb: string }> = {
 
 export default function ProjectsPage() {
   const [activeTab, setActiveTab] = useState<Filter>("All")
+  const [selected, setSelected] = useState<Project | null>(null)
 
   const filteredProjects = useMemo(
     () =>
@@ -96,11 +98,17 @@ export default function ProjectsPage() {
           className="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2"
         >
           {filteredProjects.map((project, i) => (
-            <ProjectCard key={project.title} {...project} index={i} />
+            <ProjectCard
+              key={project.title}
+              {...project}
+              index={i}
+              onClick={() => setSelected(project)}
+            />
           ))}
         </div>
       </div>
 
+      <ProjectModal project={selected} onClose={() => setSelected(null)} />
       <BottomDock />
     </main>
   )

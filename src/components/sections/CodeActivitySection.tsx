@@ -7,7 +7,7 @@ export async function CodeActivitySection() {
 
   return (
     <section className="py-16 md:py-24 border-t border-(--color-border)">
-      <div className="max-w-4xl">
+      <div className="max-w-5xl">
         {/* Contribution graph */}
         <div>
           <div className="flex items-end justify-between mb-6">

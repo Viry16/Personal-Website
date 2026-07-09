@@ -1,13 +1,18 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { ProjectCard } from "../ui/ProjectCard"
+import { ProjectModal } from "../ui/ProjectModal"
 import { Reveal } from "../ui/Reveal"
-import { FEATURED_PROJECTS } from "@/lib/projects"
+import { FEATURED_PROJECTS, type Project } from "@/lib/projects"
 
 export function FeaturedProjects() {
+  const [selected, setSelected] = useState<Project | null>(null)
+
   return (
     <section className="py-16 md:py-24 border-t border-(--color-border)">
-      <div className="max-w-4xl">
         <Reveal>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-8 md:mb-12">
             <h2 className="flex items-center gap-3 font-display text-2xl font-bold text-(--color-text-primary)">
@@ -22,10 +27,16 @@ export function FeaturedProjects() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-12">
           {FEATURED_PROJECTS.map((project, i) => (
-            <ProjectCard key={project.title} {...project} showHighlights={false} index={i} />
+            <ProjectCard
+              key={project.title}
+              {...project}
+              index={i}
+              onClick={() => setSelected(project)}
+            />
           ))}
         </div>
-      </div>
+
+      <ProjectModal project={selected} onClose={() => setSelected(null)} />
     </section>
   )
 }
