@@ -1,6 +1,22 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useSyncExternalStore } from "react";
+import Image from "next/image";
+
+// True on devices that can't hover (touch/coarse pointers). Used to reveal
+// hover-gated content by default so it's accessible on mobile.
+const subscribeHover = (cb: () => void) => {
+  const mq = window.matchMedia("(hover: none)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+function useNoHover() {
+  return useSyncExternalStore(
+    subscribeHover,
+    () => window.matchMedia("(hover: none)").matches,
+    () => false // SSR: assume a hover-capable device
+  );
+}
 
 interface Photo {
   id: string;
@@ -17,10 +33,10 @@ const PHOTOS: Photo[] = [
     id: "photo-0",
     place: "Excel",
     sub: "Cikarang, Indonesia · May 2026",
-    title1: "Chasing",
-    title2: "light across",
-    title3: "the world.",
-    src: "./assets/image/profile_image/excel.webp", // User will replace
+    title1: "Life every",
+    title2: "day like",
+    title3: "it's your last",
+    src: "/assets/image/profile_image/excel.webp", // User will replace
   },
   {
     id: "photo-1",
@@ -29,7 +45,7 @@ const PHOTOS: Photo[] = [
     title1: "WICE",
     title2: "Silver",
     title3: "Medalist.",
-    src: "./assets/image/profile_image/wice.jpg", // User will replace
+    src: "/assets/image/profile_image/wice.webp", // User will replace
   },
   {
     id: "photo-2",
@@ -38,7 +54,7 @@ const PHOTOS: Photo[] = [
     title1: "Conquering",
     title2: "peaks and",
     title3: "dreams.",
-    src: "./assets/image/profile_image/gede.jpg", // User will replace
+    src: "/assets/image/profile_image/gede.webp", // User will replace
   },
   {
     id: "photo-3",
@@ -47,7 +63,7 @@ const PHOTOS: Photo[] = [
     title1: "Sunrise over",
     title2: "ancient",
     title3: "stupa.",
-    src: "./assets/image/profile_image/borobudur.jpg", // User will replace
+    src: "/assets/image/profile_image/borobudur.webp", // User will replace
   },
 ];
 
@@ -75,6 +91,12 @@ export default function ProfileCard({
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const fadeTimer1Ref = useRef<NodeJS.Timeout | null>(null);
   const fadeTimer2Ref = useRef<NodeJS.Timeout | null>(null);
+  // Drag is throttled to one state update per animation frame (pointermove can
+  // fire far faster than 60Hz, which caused a re-render storm).
+  const dragRafRef = useRef<number | null>(null);
+  const latestDragXRef = useRef(0);
+
+  const noHover = useNoHover();
 
   function crossFade(nextState: { mode?: "card" | "gallery", cardHover?: boolean, deckHover?: boolean, dragging?: boolean, dragX?: number }) {
     if (fadeTimer1Ref.current) clearTimeout(fadeTimer1Ref.current);
@@ -121,6 +143,7 @@ export default function ProfileCard({
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       if (fadeTimer1Ref.current) clearTimeout(fadeTimer1Ref.current);
       if (fadeTimer2Ref.current) clearTimeout(fadeTimer2Ref.current);
+      if (dragRafRef.current) cancelAnimationFrame(dragRafRef.current);
     };
   }, []);
 
@@ -142,18 +165,30 @@ export default function ProfileCard({
 
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging) return;
-    resetIdle();
-    setDragX(e.clientX - startXRef.current);
+    latestDragXRef.current = e.clientX - startXRef.current;
+    // Coalesce rapid pointermove events into at most one update per frame
+    if (dragRafRef.current !== null) return;
+    dragRafRef.current = requestAnimationFrame(() => {
+      dragRafRef.current = null;
+      resetIdle();
+      setDragX(latestDragXRef.current);
+    });
   };
 
   const onUp = () => {
     if (!dragging) return;
+    if (dragRafRef.current !== null) {
+      cancelAnimationFrame(dragRafRef.current);
+      dragRafRef.current = null;
+    }
+    const dx = latestDragXRef.current;
     const n = PHOTOS.length;
     let i = activeIndex;
-    if (dragX <= -110) i = (i + 1) % n;
-    else if (dragX >= 110) i = (i - 1 + n) % n;
-    
+    if (dx <= -110) i = (i + 1) % n;
+    else if (dx >= 110) i = (i - 1 + n) % n;
+
     resetIdle();
+    latestDragXRef.current = 0;
     setDragging(false);
     setDragX(0);
     setActiveIndex(i);
@@ -161,6 +196,10 @@ export default function ProfileCard({
 
   const n = PHOTOS.length;
   const active = PHOTOS[activeIndex] || PHOTOS[0];
+
+  // On touch/no-hover devices, reveal the hover content by default so it's
+  // reachable without a pointer.
+  const cardShowHover = cardHover || noHover;
 
   const stageStyle: React.CSSProperties = {
     opacity: stageIn ? 1 : 0,
@@ -176,7 +215,7 @@ export default function ProfileCard({
     top: "14px",
     left: "14px",
     right: "14px",
-    bottom: cardHover ? "14px" : "104px",
+    bottom: cardShowHover ? "14px" : "104px",
     borderRadius: "20px",
     overflow: "hidden",
     transition: "top .5s cubic-bezier(.22,1,.36,1),left .5s cubic-bezier(.22,1,.36,1),right .5s cubic-bezier(.22,1,.36,1),bottom .5s cubic-bezier(.22,1,.36,1),border-radius .5s",
@@ -188,7 +227,7 @@ export default function ProfileCard({
     pointerEvents: "none",
     borderRadius: "30px",
     background: "linear-gradient(to top, rgba(20,20,22,1) 0%, rgba(20,20,22,0) 60%)",
-    opacity: cardHover ? 1 : 0,
+    opacity: cardShowHover ? 1 : 0,
     transition: "opacity .45s",
   };
 
@@ -201,10 +240,10 @@ export default function ProfileCard({
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    opacity: cardHover ? 0 : 1,
-    transform: cardHover ? "translateY(12px)" : "none",
+    opacity: cardShowHover ? 0 : 1,
+    transform: cardShowHover ? "translateY(12px)" : "none",
     transition: "opacity .3s, transform .5s cubic-bezier(.22,1,.36,1)",
-    pointerEvents: cardHover ? "none" : "auto",
+    pointerEvents: cardShowHover ? "none" : "auto",
   };
 
   const hoverInfoStyle: React.CSSProperties = {
@@ -216,8 +255,8 @@ export default function ProfileCard({
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    opacity: cardHover ? 1 : 0,
-    transform: cardHover ? "none" : "translateY(14px)",
+    opacity: cardShowHover ? 1 : 0,
+    transform: cardShowHover ? "none" : "translateY(14px)",
     transition: "opacity .4s .05s, transform .55s cubic-bezier(.22,1,.36,1)",
     pointerEvents: "none",
   };
@@ -256,8 +295,14 @@ export default function ProfileCard({
             className="relative w-[340px] h-[500px] bg-[#141416] rounded-[30px] overflow-hidden cursor-pointer shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]"
           >
             <div style={imageWrapStyle}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={active.src} alt={active.place} className="w-full h-full object-cover" />
+              <Image
+                src={active.src}
+                alt={active.place}
+                fill
+                sizes="340px"
+                priority
+                className="object-cover"
+              />
             </div>
 
             <div style={gradientStyle}></div>
@@ -326,7 +371,7 @@ export default function ProfileCard({
                   userSelect: "none",
                 };
                 
-                const showCaption = isTop && deckHover && !dragging;
+                const showCaption = isTop && (deckHover || noHover) && !dragging;
                 
                 const gStyle: React.CSSProperties = {
                   position: "absolute",
@@ -362,8 +407,13 @@ export default function ProfileCard({
                     onMouseLeave={() => setDeckHover(false)}
                     style={style}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={ph.src} alt={ph.place} className="w-full h-full object-cover pointer-events-none" />
+                    <Image
+                      src={ph.src}
+                      alt={ph.place}
+                      fill
+                      sizes="340px"
+                      className="object-cover pointer-events-none"
+                    />
                     <div style={gStyle}></div>
                     <div style={overlayStyle}>
                       <div className="text-[10.5px] font-bold tracking-[0.18em] text-white/60 mb-[6px] uppercase">
@@ -397,7 +447,9 @@ export default function ProfileCard({
             </div>
             
             <div className="text-[12.5px] text-[#55555c] font-medium">
-              Hold & drag left / right to browse · hover for location
+              {noHover
+                ? "Swipe left / right to browse photos"
+                : "Hold & drag left / right to browse · hover for location"}
             </div>
           </div>
         </div>

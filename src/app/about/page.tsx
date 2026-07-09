@@ -34,7 +34,7 @@ export default function AboutPage() {
           <div className="w-full md:w-1/3 shrink-0">
             <div className="relative aspect-square overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface)">
               <Image 
-                src="/assets/Profile.webp" 
+                src="/assets/image/profile_image/excel.webp" 
                 alt="Excel Viryan" 
                 fill 
                 className="object-cover"

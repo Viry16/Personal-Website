@@ -48,9 +48,12 @@ export default function RootLayout({
           </div>
 
           {/* All page content renders above the background.
-              MotionProvider = global Framer Motion config (reduced-motion aware). */}
+              MotionProvider = global Framer Motion config (reduced-motion aware).
+              overflow-x-clip guards against any stray-wide child (e.g. an
+              animating card) ever producing a horizontal scrollbar. It doesn't
+              affect the fixed dock/background (no containing block created). */}
           <MotionProvider>
-            <div className="relative z-10 flex flex-1 flex-col">
+            <div className="relative z-10 flex flex-1 flex-col overflow-x-clip">
               {children}
             </div>
           </MotionProvider>
