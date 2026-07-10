@@ -2,6 +2,8 @@ export type ProjectType = "Software" | "Hardware"
 export type ProjectStatus = "Live" | "In Progress" | "Archived"
 
 export interface Project {
+  /** Database id. Absent for the static seed data below. */
+  id?: number
   title: string
   subtitle?: string
   description: string
@@ -15,8 +17,14 @@ export interface Project {
   website?: string
   source?: string
   featured?: boolean
+  /** Ordering weight (lower shows first). DB-only; absent in seed data. */
+  sortOrder?: number
 }
 
+/**
+ * Static seed data. Used to seed the database (`npm run db:seed`) and as the
+ * fallback the data layer returns when `DATABASE_URL` is not configured.
+ */
 export const PROJECTS: Project[] = [
   {
     title: "AMCS",

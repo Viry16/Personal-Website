@@ -1,18 +1,19 @@
 import { Mail, ArrowUpRight } from "lucide-react"
-import { SITE } from "@/lib/site"
+import { getSiteSettings } from "@/lib/data"
 import {
   GitHubIcon,
   InstagramIcon,
   LinkedInIcon,
 } from "@/components/ui/SocialIcons"
 
-const SOCIAL_LINKS = [
-  { href: SITE.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
-  { href: SITE.github, label: "GitHub", Icon: GitHubIcon },
-  { href: SITE.instagram, label: "Instagram", Icon: InstagramIcon },
-]
+export async function ContactCTA() {
+  const site = await getSiteSettings()
+  const socialLinks = [
+    { href: site.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
+    { href: site.github, label: "GitHub", Icon: GitHubIcon },
+    { href: site.instagram, label: "Instagram", Icon: InstagramIcon },
+  ]
 
-export function ContactCTA() {
   return (
     <section id="contact" className="py-16 md:py-24 border-t border-(--color-border)">
       <div className="relative overflow-hidden rounded-3xl border border-(--color-border) bg-(--color-surface) px-6 py-12 text-center md:px-16 md:py-16">
@@ -41,7 +42,7 @@ export function ContactCTA() {
 
           <div className="mt-8 flex flex-col items-center justify-center gap-5 sm:flex-row">
             <a
-              href={`mailto:${SITE.email}`}
+              href={`mailto:${site.email}`}
               className="group flex items-center gap-2 rounded-lg bg-(--color-text-primary) px-5 py-3 text-sm font-semibold text-(--color-bg) transition-transform hover:scale-105 active:scale-95"
             >
               <Mail className="h-4 w-4" />
@@ -50,7 +51,7 @@ export function ContactCTA() {
             </a>
 
             <div className="flex items-center gap-4">
-              {SOCIAL_LINKS.map(({ href, label, Icon }) => (
+              {socialLinks.map(({ href, label, Icon }) => (
                 <a
                   key={label}
                   href={href}

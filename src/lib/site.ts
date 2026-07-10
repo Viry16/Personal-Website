@@ -1,3 +1,21 @@
+/** Shape of the editable site identity/links (DB-backed via `getSiteSettings`). */
+export type SiteSettings = {
+  name: string
+  title: string
+  description: string
+  email: string
+  githubUsername: string
+  github: string
+  linkedin: string
+  instagram: string
+  resume: string
+  logo: string
+}
+
+/**
+ * Static defaults. Used to seed the database and as the fallback the data layer
+ * returns when `DATABASE_URL` is not configured or a query fails.
+ */
 export const SITE = {
   name: "Excel Viryan",
   title: "Excel Viryan | Console",

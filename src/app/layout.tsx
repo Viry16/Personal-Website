@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { MotionProvider } from "@/components/MotionProvider";
 import { SiteDotField } from "@/components/SiteDotField";
-import { SITE } from "@/lib/site";
+import { getSiteSettings } from "@/lib/data";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,10 +22,13 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: SITE.title,
-  description: SITE.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings();
+  return {
+    title: site.title,
+    description: site.description,
+  };
+}
 
 export default function RootLayout({
   children,
