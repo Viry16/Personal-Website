@@ -147,19 +147,29 @@ export async function getRecentCommits(
     headers.Authorization = `Bearer ${token}`
   }
 
-  // Try the private-inclusive endpoint first when authenticated, then degrade
-  // gracefully to the public one. De-duplicated so we never fetch twice.
-  const endpoints = token ? ["events", "events/public"] : ["events/public"]
+  // Fetch from both sources in parallel so we always get the truly most
+  // recent commits — the events API can carry stale pushes from old repos.
+  const evtEndpoint = token ? "events" : "events/public"
+  const fetchSize = Math.max(limit * 3, 15)
 
-  for (const endpoint of endpoints) {
-    const commits = await fetchPushCommits(username, endpoint, headers, limit)
-    if (commits.length > 0) return commits
+  const [eventCommits, repoCommits] = await Promise.all([
+    fetchPushCommits(username, evtEndpoint, headers, fetchSize),
+    fetchRepoCommits(username, headers, Boolean(token), fetchSize),
+  ])
+
+  // Merge, deduplicate by SHA, sort newest-first, take top N
+  const seen = new Set<string>()
+  const merged: CommitItem[] = []
+  for (const c of [...eventCommits, ...repoCommits]) {
+    if (!seen.has(c.sha)) {
+      seen.add(c.sha)
+      merged.push(c)
+    }
   }
-
-  // The events API can be empty even when the user is active — merges, branch
-  // pushes, and force-pushes carry no `commits`, and it only covers ~90 days.
-  // Fall back to the latest commits from the user's recently pushed repos.
-  return fetchRepoCommits(username, headers, Boolean(token), limit)
+  merged.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )
+  return merged.slice(0, limit)
 }
 
 /**
@@ -200,10 +210,9 @@ async function fetchRepoCommits(
     const collected: CommitItem[] = []
 
     for (const repo of repos) {
-      if (collected.length >= limit) break
 
       const commitsRes = await fetch(
-        `https://api.github.com/repos/${repo.full_name}/commits?per_page=3&author=${username}`,
+        `https://api.github.com/repos/${repo.full_name}/commits?per_page=5&author=${username}`,
         { headers, next: { revalidate: REVALIDATE_SECONDS } }
       )
       if (!commitsRes.ok) continue
