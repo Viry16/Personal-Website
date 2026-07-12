@@ -27,7 +27,15 @@ const TAB_COPY: Record<Filter, { heading: string; blurb: string }> = {
   },
 }
 
-export function ProjectsGallery({ projects }: { projects: Project[] }) {
+export function ProjectsGallery({
+  projects,
+  logo,
+  name,
+}: {
+  projects: Project[]
+  logo?: string
+  name?: string
+}) {
   const [activeTab, setActiveTab] = useState<Filter>("All")
   const [selected, setSelected] = useState<Project | null>(null)
 
@@ -109,7 +117,7 @@ export function ProjectsGallery({ projects }: { projects: Project[] }) {
       </div>
 
       <ProjectModal project={selected} onClose={() => setSelected(null)} />
-      <BottomDock />
+      <BottomDock logo={logo} name={name} />
     </main>
   )
 }

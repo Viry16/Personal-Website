@@ -42,39 +42,65 @@ is read at most once per image before browsers and any CDN take over.
 > media libraries, switch the store to object storage (S3 / Vercel Blob) behind
 > the same `/api/images` seam.
 
-> Client components that still import the static `SITE` object directly
-> (`BottomDock`, `HomePreview`, `DevelopmentFeed`, `CodeActivitySection`) keep
-> using the defaults. To make them dynamic too, fetch `getSiteSettings()` in a
-> parent Server Component and pass the values down as props — same pattern used
-> for `ContactCTA`.
+The site **logo** (dock) and **resume/CV** (home hero) are now dynamic too —
+their Server Component parents fetch `getSiteSettings()` and pass the values into
+`BottomDock` / `HomePreview` as props.
+
+> A few client components still import the static `SITE` object directly
+> (`DevelopmentFeed`, `CodeActivitySection`) for defaults that rarely change. To
+> make them dynamic, fetch `getSiteSettings()` in a parent Server Component and
+> pass the values down as props — same pattern used for `ContactCTA`,
+> `BottomDock`, and `HomePreview`.
 
 ## One-time setup
 
-### 1. Create a Postgres database
+Any Postgres works — the app talks standard Postgres through Drizzle, so the
+provider is a swap of `DATABASE_URL` with no code changes. **Supabase** is the
+recommended host (free tier, works on Vercel, nothing to run locally).
 
-Any Postgres works. Easiest free options:
+### 1. Create a Supabase project
 
-- **[Neon](https://neon.tech)** — create a project, copy the **pooled**
-  connection string.
-- **[Supabase](https://supabase.com)** — Project settings → Database → use the
-  **Connection pooling** (Transaction) string.
+1. Sign up at [supabase.com](https://supabase.com) → **New project**.
+2. Set a **database password** (save it) and pick a region close to you.
+3. Wait for it to finish provisioning (~2 min).
 
-### 2. Configure environment variables
+### 2. Copy the connection string
+
+In the project, click **Connect** (top bar) → **Connection pooling** →
+**Transaction** mode. Copy the URI. It looks like:
+
+```
+postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres
+```
+
+Replace `<password>` with your database password (URL-encode special
+characters: `@`→`%40`, `#`→`%23`, `!`→`%21`, `$`→`%24`, `%`→`%25`).
+
+### 3. Configure environment variables
 
 Copy `.env.example` to `.env.local` and fill in:
 
 ```bash
-DATABASE_URL=postgres://user:password@host/db?sslmode=require
-SESSION_SECRET=          # openssl rand -base64 32
+DATABASE_URL=postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres
+SESSION_SECRET=          # a long random string (see below)
 ADMIN_PASSWORD=          # the password you will log in with
 ```
 
-### 3. Create the tables and seed data
+SSL is enabled automatically for any non-localhost host — no `?sslmode=` needed.
+No `openssl`? Generate `SESSION_SECRET` in Supabase's SQL editor with
+`select encode(gen_random_bytes(32), 'base64');`.
+
+### 4. Create the tables and seed data
 
 ```bash
 npm run db:push     # create tables from src/lib/db/schema.ts
 npm run db:seed     # import the current projects + site settings
 ```
+
+> If `db:push` ever errors on the pooled URL, set `DIRECT_URL` in `.env.local`
+> to Supabase's **Direct connection** string (port 5432) and re-run — migrations
+> will use it automatically. You can browse the data in Supabase's **Table
+> editor**, or with `npm run db:studio`.
 
 Optional helpers:
 
@@ -108,12 +134,18 @@ Node host — **Vercel** is the natural fit.
 1. Push the repo to GitHub and import it in Vercel.
 2. In **Project → Settings → Environment Variables**, add `DATABASE_URL`,
    `SESSION_SECRET`, `ADMIN_PASSWORD` (and optionally `GITHUB_TOKEN`).
-   Use the **pooled** `DATABASE_URL` in production.
-3. Run migrations against the production DB once — either locally with the
-   production `DATABASE_URL` exported (`npm run db:push && npm run db:seed`), or
-   via `db:migrate` in your pipeline.
+   Use the **pooled** (Transaction, port 6543) Supabase URL.
+3. Because Supabase is hosted, the same database you used locally is reachable
+   from Vercel — if you already ran `db:push` + `db:seed` against it, the tables
+   and content (including anything you uploaded) are already there. Nothing else
+   to run.
 4. Deploy. After content edits, the affected pages revalidate automatically
    (`revalidatePath` in the Server Actions).
+
+> **Tip:** using one Supabase project for both local dev and production is the
+> simplest setup. If you'd rather isolate them, create a second Supabase project
+> and use its URL as the Vercel `DATABASE_URL`, then run `db:push`/`db:seed`
+> against it once.
 
 > A static export (`output: 'export'`) will **not** work — it disables Server
 > Actions, ISR, and the proxy. Use a Node/serverless host.

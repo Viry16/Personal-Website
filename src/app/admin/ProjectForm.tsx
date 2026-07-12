@@ -34,11 +34,7 @@ export function ProjectForm({
   }
 
   return (
-    <form
-      action={formAction}
-      encType="multipart/form-data"
-      className="max-w-2xl space-y-6"
-    >
+    <form action={formAction} className="max-w-2xl space-y-6">
       {state.error && (
         <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
           {state.error}

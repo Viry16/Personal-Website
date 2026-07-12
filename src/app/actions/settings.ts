@@ -1,10 +1,16 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { eq } from "drizzle-orm"
 import { z } from "zod"
 import { getDb } from "@/lib/db"
 import { siteSettings } from "@/lib/db/schema"
 import { verifySession } from "@/lib/auth/session"
+import {
+  saveUploadedImage,
+  saveUploadedDocument,
+  deleteManagedUpload,
+} from "@/lib/images"
 
 export type SettingsFormState = {
   ok?: boolean
@@ -21,9 +27,32 @@ const SettingsSchema = z.object({
   github: z.string().min(1, "GitHub URL is required"),
   linkedin: z.string().min(1, "LinkedIn URL is required"),
   instagram: z.string().min(1, "Instagram URL is required"),
-  resume: z.string().min(1, "Resume path is required"),
-  logo: z.string().min(1, "Logo path is required"),
+  // Optional here: an uploaded file (handled separately) can supply these.
+  resume: z.string().optional(),
+  logo: z.string().optional(),
 })
+
+/**
+ * Resolves an asset value: an uploaded file wins, otherwise the text field
+ * (a local `/assets` path or external URL). Returns an error if neither exists.
+ */
+async function resolveAsset(
+  formData: FormData,
+  fileField: string,
+  textValue: string | undefined,
+  save: (file: File) => Promise<string>
+): Promise<{ url?: string; error?: string }> {
+  const file = formData.get(fileField)
+  if (file instanceof File && file.size > 0) {
+    try {
+      return { url: await save(file) }
+    } catch (err) {
+      return { error: (err as Error).message }
+    }
+  }
+  if (textValue) return { url: textValue }
+  return { error: "Upload a file or provide a path/URL." }
+}
 
 export async function updateSiteSettings(
   _prev: SettingsFormState,
@@ -39,16 +68,47 @@ export async function updateSiteSettings(
   }
   const d = parsed.data
 
+  const logo = await resolveAsset(formData, "logoFile", d.logo, saveUploadedImage)
+  if (!logo.url) return { fieldErrors: { logo: [logo.error ?? "Logo required."] } }
+
+  const resume = await resolveAsset(
+    formData,
+    "resumeFile",
+    d.resume,
+    saveUploadedDocument
+  )
+  if (!resume.url) {
+    return { fieldErrors: { resume: [resume.error ?? "Resume required."] } }
+  }
+
+  // Grab the current assets so we can clean up any DB-stored ones we replace.
+  const existing = await db
+    .select({ logo: siteSettings.logo, resume: siteSettings.resume })
+    .from(siteSettings)
+    .where(eq(siteSettings.id, 1))
+    .limit(1)
+  const previous = existing[0]
+
+  const values = { ...d, logo: logo.url, resume: resume.url }
+
   try {
     await db
       .insert(siteSettings)
-      .values({ id: 1, ...d })
+      .values({ id: 1, ...values })
       .onConflictDoUpdate({
         target: siteSettings.id,
-        set: { ...d, updatedAt: new Date() },
+        set: { ...values, updatedAt: new Date() },
       })
   } catch (err) {
     return { error: `Failed to save settings: ${(err as Error).message}` }
+  }
+
+  // Remove old DB-stored logo/CV if they were swapped out.
+  if (previous?.logo && previous.logo !== logo.url) {
+    await deleteManagedUpload(previous.logo)
+  }
+  if (previous?.resume && previous.resume !== resume.url) {
+    await deleteManagedUpload(previous.resume)
   }
 
   // Site identity feeds every page's metadata + chrome, so revalidate the

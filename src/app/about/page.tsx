@@ -3,12 +3,14 @@ import { PageHeader } from "@/components/ui/PageHeader"
 import { Terminal } from "@/components/sections/Terminal"
 import { NowFeed } from "@/components/sections/NowFeed"
 import { DevelopmentFeed } from "@/components/sections/DevelopmentFeed"
+import { getSiteSettings } from "@/lib/data"
 import Image from "next/image"
 
 // Re-render at most once an hour so the GitHub commit feed stays fresh
 export const revalidate = 3600
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const site = await getSiteSettings()
   return (
     <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
       <div className="mx-auto max-w-4xl px-6 md:px-12 pt-16 md:pt-24 pb-32">
@@ -56,7 +58,7 @@ export default function AboutPage() {
         <NowFeed />
       </div>
 
-      <BottomDock />
+      <BottomDock logo={site.logo} name={site.name} />
     </main>
   )
 }

@@ -7,7 +7,7 @@ import { z } from "zod"
 import { getDb } from "@/lib/db"
 import { projects } from "@/lib/db/schema"
 import { verifySession } from "@/lib/auth/session"
-import { saveUploadedImage, deleteManagedImage } from "@/lib/images"
+import { saveUploadedImage, deleteManagedUpload } from "@/lib/images"
 
 export type ProjectFormState = {
   error?: string
@@ -183,7 +183,7 @@ export async function updateProject(
 
   // Drop the old DB-stored image if it was swapped out.
   if (previousImage && previousImage !== img.url) {
-    await deleteManagedImage(previousImage)
+    await deleteManagedUpload(previousImage)
   }
 
   revalidateProjectViews()
@@ -206,7 +206,7 @@ export async function deleteProject(formData: FormData) {
     .limit(1)
 
   await db.delete(projects).where(eq(projects.id, id))
-  await deleteManagedImage(existing[0]?.image)
+  await deleteManagedUpload(existing[0]?.image)
   revalidateProjectViews()
 }
 

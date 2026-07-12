@@ -16,7 +16,13 @@ const NAV_ITEMS = [
   { href: "/about", icon: User, label: "About" },
 ]
 
-export function BottomDock() {
+export function BottomDock({
+  logo = SITE.logo,
+  name = SITE.name,
+}: {
+  logo?: string
+  name?: string
+} = {}) {
   const pathname = usePathname()
 
   return (
@@ -32,10 +38,12 @@ export function BottomDock() {
         {/* Brand logo — dark chip so the light logo mark stays visible in both themes */}
         <Link
           href="/"
-          aria-label={`${SITE.name} — Home`}
+          aria-label={`${name} — Home`}
           className="mr-1 flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden transition-transform duration-300 hover:-translate-y-1"
         >
-          <Image src={SITE.logo} alt="" width={22} height={22} className="translate-y-[1.3px] translate-x-[0.8px]" />
+          {/* unoptimized: the logo may be a DB-served upload (/api/images/…) of
+              any format (incl. SVG); skip the optimizer so it always renders. */}
+          <Image src={logo} alt="" width={22} height={22} unoptimized className="translate-y-[1.3px] translate-x-[0.8px]" />
         </Link>
 
         <div className="w-px h-7 md:h-8 bg-(--color-border) mx-0.5 md:mx-1" />

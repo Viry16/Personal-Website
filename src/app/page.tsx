@@ -8,20 +8,22 @@ import { CodeActivitySection } from "@/components/sections/CodeActivitySection"
 import { FeaturedProjects } from "@/components/sections/FeaturedProjects"
 import { ContactCTA } from "@/components/sections/ContactCTA"
 import { Reveal } from "@/components/ui/Reveal"
+import { getSiteSettings } from "@/lib/data"
 
-export default function Home() {
+export default async function Home() {
+  const site = await getSiteSettings()
   return (
     <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
 
       <div className="mx-auto max-w-5xl px-6 md:px-12 pb-32">
-        <HomePreview />
+        <HomePreview site={site} />
         <Reveal><WorkSection /></Reveal>
         <Reveal><CodeActivitySection /></Reveal>
         <FeaturedProjects />
         <Reveal><ContactCTA /></Reveal>
       </div>
 
-      <BottomDock />
+      <BottomDock logo={site.logo} name={site.name} />
     </main>
   )
 }

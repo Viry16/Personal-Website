@@ -1,12 +1,13 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import type { SiteSettings } from "@/lib/site"
 import {
   updateSiteSettings,
   type SettingsFormState,
 } from "@/app/actions/settings"
 
+// Plain text fields. Logo and resume are handled separately (file uploads).
 const FIELDS: { name: keyof SiteSettings; label: string; hint?: string }[] = [
   { name: "name", label: "Name" },
   { name: "title", label: "Browser / SEO title" },
@@ -16,9 +17,10 @@ const FIELDS: { name: keyof SiteSettings; label: string; hint?: string }[] = [
   { name: "github", label: "GitHub URL" },
   { name: "linkedin", label: "LinkedIn URL" },
   { name: "instagram", label: "Instagram URL" },
-  { name: "resume", label: "Resume path", hint: "URL-encode spaces as %20" },
-  { name: "logo", label: "Logo path" },
 ]
+
+const inputClass =
+  "w-full rounded-lg border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-primary) outline-none transition-colors focus:border-(--color-text-muted)"
 
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [state, action, pending] = useActionState<SettingsFormState, FormData>(
@@ -26,6 +28,11 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
     {}
   )
   const errs = state.fieldErrors ?? {}
+
+  const [logoPreview, setLogoPreview] = useState<string | undefined>(
+    settings.logo
+  )
+  const [resumeName, setResumeName] = useState<string | undefined>()
 
   return (
     <form action={action} className="max-w-2xl space-y-6">
@@ -59,13 +66,92 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
             id={f.name}
             name={f.name}
             defaultValue={settings[f.name]}
-            className="w-full rounded-lg border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-primary) outline-none transition-colors focus:border-(--color-text-muted)"
+            className={inputClass}
           />
           {errs[f.name]?.[0] && (
             <p className="mt-1 text-xs text-red-500">{errs[f.name]?.[0]}</p>
           )}
         </div>
       ))}
+
+      {/* Logo — image upload with preview, plus a path/URL fallback */}
+      <div className="border-t border-(--color-border) pt-6">
+        <div className="mb-1.5 flex items-baseline justify-between gap-2">
+          <label className="text-sm font-medium text-(--color-text-primary)">
+            Logo
+          </label>
+          <span className="text-xs text-(--color-text-muted)">
+            Upload an image, or paste a path/URL
+          </span>
+        </div>
+        <div className="flex items-start gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoPreview || "/assets/image/logo/logo.svg"}
+            alt=""
+            className="h-16 w-16 shrink-0 rounded-lg border border-(--color-border) bg-zinc-900 object-contain p-2"
+          />
+          <div className="min-w-0 flex-1 space-y-2">
+            <input
+              type="file"
+              name="logoFile"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,image/avif"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) setLogoPreview(URL.createObjectURL(file))
+              }}
+              className="block w-full text-sm text-(--color-text-secondary) file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-(--color-border) file:bg-(--color-surface) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-text-primary) hover:file:opacity-90"
+            />
+            <input
+              name="logo"
+              defaultValue={settings.logo}
+              placeholder="/assets/image/logo/logo.svg"
+              className={inputClass}
+            />
+          </div>
+        </div>
+        {errs.logo?.[0] && (
+          <p className="mt-1 text-xs text-red-500">{errs.logo[0]}</p>
+        )}
+      </div>
+
+      {/* Resume — PDF upload, plus a path/URL fallback */}
+      <div>
+        <div className="mb-1.5 flex items-baseline justify-between gap-2">
+          <label className="text-sm font-medium text-(--color-text-primary)">
+            Resume (PDF)
+          </label>
+          <a
+            href={settings.resume}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-(--color-text-muted) underline hover:text-(--color-text-primary)"
+          >
+            View current
+          </a>
+        </div>
+        <input
+          type="file"
+          name="resumeFile"
+          accept="application/pdf"
+          onChange={(e) => setResumeName(e.target.files?.[0]?.name)}
+          className="block w-full text-sm text-(--color-text-secondary) file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-(--color-border) file:bg-(--color-surface) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-text-primary) hover:file:opacity-90"
+        />
+        {resumeName && (
+          <p className="mt-1 text-xs text-(--color-text-muted)">
+            Selected: {resumeName}
+          </p>
+        )}
+        <input
+          name="resume"
+          defaultValue={settings.resume}
+          placeholder="/assets/cv/CV.pdf or https://…"
+          className={`${inputClass} mt-2`}
+        />
+        {errs.resume?.[0] && (
+          <p className="mt-1 text-xs text-red-500">{errs.resume[0]}</p>
+        )}
+      </div>
 
       <div className="border-t border-(--color-border) pt-6">
         <button

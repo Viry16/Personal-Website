@@ -3,19 +3,13 @@
 import Link from "next/link"
 import { motion, type Variants } from "motion/react"
 import { FileText, Mail, ArrowRight } from "lucide-react"
-import { SITE } from "@/lib/site"
+import { SITE, type SiteSettings } from "@/lib/site"
 import ProfileCard from "@/components/ui/ProfileCard"
 import {
   GitHubIcon,
   InstagramIcon,
   LinkedInIcon,
 } from "@/components/ui/SocialIcons"
-
-const SOCIAL_LINKS = [
-  { href: SITE.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
-  { href: SITE.github, label: "GitHub", Icon: GitHubIcon },
-  { href: SITE.instagram, label: "Instagram", Icon: InstagramIcon },
-]
 
 // Staggered entrance: each hero block fades in from below with a blur that
 // sharpens as it lands — one springy, coordinated sequence on page load.
@@ -34,7 +28,13 @@ const item: Variants = {
   },
 }
 
-export function HomePreview() {
+export function HomePreview({ site = SITE }: { site?: SiteSettings }) {
+  const socialLinks = [
+    { href: site.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
+    { href: site.github, label: "GitHub", Icon: GitHubIcon },
+    { href: site.instagram, label: "Instagram", Icon: InstagramIcon },
+  ]
+
   return (
     <section className="pt-16 pb-12 md:pt-24 md:pb-16 flex flex-col justify-center">
       <motion.div
@@ -47,10 +47,10 @@ export function HomePreview() {
         <div className="space-y-6 flex-1 w-full">
           <motion.div variants={item}>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-(--color-text-primary) mb-4">
-              Hi, I&apos;m {SITE.name}
+              Hi, I&apos;m {site.name}
             </h1>
             <p className="text-xl text-(--color-text-secondary) font-medium">
-              {SITE.description}
+              {site.description}
             </p>
           </motion.div>
 
@@ -67,7 +67,7 @@ export function HomePreview() {
 
           <motion.div variants={item} className="flex flex-wrap items-center gap-4 pt-2">
             <motion.a
-              href={SITE.resume}
+              href={site.resume}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.06, y: -2 }}
@@ -79,7 +79,7 @@ export function HomePreview() {
               Resume
             </motion.a>
             <div className="flex items-center gap-1 px-1">
-              {SOCIAL_LINKS.map(({ href, label, Icon }) => (
+              {socialLinks.map(({ href, label, Icon }) => (
                 <motion.a
                   key={label}
                   href={href}
@@ -95,7 +95,7 @@ export function HomePreview() {
                 </motion.a>
               ))}
               <motion.a
-                href={`mailto:${SITE.email}`}
+                href={`mailto:${site.email}`}
                 whileHover={{ scale: 1.2, y: -2 }}
                 whileTap={{ scale: 0.9 }}
                 transition={{ type: "spring", stiffness: 420, damping: 16 }}

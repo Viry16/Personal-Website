@@ -12,6 +12,24 @@ const globalForDb = globalThis as unknown as {
 }
 
 /**
+ * Decides TLS mode from the connection string. Hosted Postgres (Supabase, Neon,
+ * etc.) requires TLS; a local dev instance usually has none. Honors an explicit
+ * `?sslmode=` and otherwise turns SSL on for any non-localhost host.
+ */
+function sslMode(url: string): "require" | false {
+  try {
+    const u = new URL(url)
+    const sslmode = u.searchParams.get("sslmode")
+    if (sslmode === "disable") return false
+    if (sslmode) return "require"
+    const local = ["localhost", "127.0.0.1", "::1"].includes(u.hostname)
+    return local ? false : "require"
+  } catch {
+    return false
+  }
+}
+
+/**
  * Returns a Drizzle client, or `null` when `DATABASE_URL` is not configured.
  *
  * The env var is read lazily (inside this function, not at module load) so that
@@ -26,9 +44,11 @@ export function getDb(): DrizzleDb | null {
   if (!globalForDb.__db) {
     // `prepare: false` keeps things compatible with transaction-mode poolers
     // (Supabase pgBouncer, Neon pooled endpoints). `max: 1` is friendly to
-    // serverless where each instance holds its own connection.
+    // serverless where each instance holds its own connection. `ssl` is derived
+    // from the URL so Supabase (TLS-required) and localhost both work.
     const client =
-      globalForDb.__pgClient ?? postgres(url, { prepare: false, max: 1 })
+      globalForDb.__pgClient ??
+      postgres(url, { prepare: false, max: 1, ssl: sslMode(url) })
     globalForDb.__pgClient = client
     globalForDb.__db = drizzle(client, { schema })
   }
