@@ -33,6 +33,7 @@ yarn-error.log*
 # local md
 AGENTS.MD*
 CLAUDE.MD*
+BACKEND.md
 .claude
 
 # env files (can opt-in for committing if needed)
