@@ -86,6 +86,10 @@ export default function ProfileCard({
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [stageIn, setStageIn] = useState(true);
+
+  // Entrance animation: card rises into view with a 3D tilt on first mount.
+  const [mounted, setMounted] = useState(false);
+  const [entranceDone, setEntranceDone] = useState(false);
   
   const startXRef = useRef(0);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -138,8 +142,14 @@ export default function ProfileCard({
     }, idleSeconds * 1000);
   }
 
+  // Trigger the entrance animation on mount. No delay so the image paints
+  // immediately (opacity is never 0 — Chrome needs it visible for LCP).
   useEffect(() => {
+    // Use a microtask so the pre-transform state renders one frame first
+    requestAnimationFrame(() => setMounted(true));
+    const entranceEnd = setTimeout(() => setEntranceDone(true), 1200);
     return () => {
+      clearTimeout(entranceEnd);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       if (fadeTimer1Ref.current) clearTimeout(fadeTimer1Ref.current);
       if (fadeTimer2Ref.current) clearTimeout(fadeTimer2Ref.current);
@@ -201,13 +211,31 @@ export default function ProfileCard({
   // reachable without a pointer.
   const cardShowHover = cardHover || noHover;
 
-  const stageStyle: React.CSSProperties = {
-    opacity: stageIn ? 1 : 0,
-    transform: stageIn ? "scale(1)" : "scale(0.93)",
-    filter: stageIn ? "blur(0px)" : "blur(6px)",
-    transition: "opacity .3s ease, transform .42s cubic-bezier(.22,1,.36,1), filter .3s ease",
-    willChange: "opacity, transform",
-  };
+  // Entrance: 3D perspective tilt rising into place on first load.
+  // IMPORTANT: opacity is NEVER 0 during entrance — Chrome disqualifies
+  // opacity:0 elements from Largest Contentful Paint. The image must be
+  // considered "painted" immediately. Only transform animates on entrance.
+  // After entrance completes, crossfade transitions can use opacity+blur.
+  const stageStyle: React.CSSProperties = entranceDone
+    ? {
+        // Post-entrance: normal crossfade transitions (card ↔ gallery)
+        opacity: stageIn ? 1 : 0,
+        transform: stageIn ? "scale(1)" : "scale(0.93)",
+        filter: stageIn ? "blur(0px)" : "blur(6px)",
+        transition: "opacity .3s ease, transform .42s cubic-bezier(.22,1,.36,1), filter .3s ease",
+        willChange: "opacity, transform",
+      }
+    : {
+        // Entrance: transform-only animation (no opacity/blur gatekeeping)
+        opacity: 1,
+        transform: mounted
+          ? "perspective(800px) rotateX(0deg) rotateY(0deg) scale(1) translateY(0)"
+          : "perspective(800px) rotateX(6deg) rotateY(-3deg) scale(0.92) translateY(30px)",
+        transition: mounted
+          ? "transform .9s cubic-bezier(.22,1,.36,1)"
+          : "none",
+        willChange: "transform",
+      };
 
   // Card view styles
   const imageWrapStyle: React.CSSProperties = {
@@ -275,6 +303,7 @@ export default function ProfileCard({
         fontFamily: "var(--font-sans)",
         width: 340 * scale,
         height: 500 * scale,
+        perspective: "1200px",
       }}
     >
       <div 
@@ -283,6 +312,7 @@ export default function ProfileCard({
           transformOrigin: 'top left',
           width: 340,
           height: 500,
+          transformStyle: "preserve-3d" as const,
         }}
         className="absolute top-0 left-0 flex items-center justify-center"
       >
@@ -292,7 +322,13 @@ export default function ProfileCard({
             onMouseEnter={() => setCardHover(true)}
             onMouseLeave={() => setCardHover(false)}
             onClick={enterGallery}
-            className="relative w-[340px] h-[500px] bg-[#141416] rounded-[30px] overflow-hidden cursor-pointer shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]"
+            className="relative w-[340px] h-[500px] bg-[#141416] rounded-[30px] overflow-hidden cursor-pointer"
+            style={{
+              boxShadow: mounted && !entranceDone
+                ? `0 40px 80px -30px rgba(0,0,0,0.8), 0 0 40px -10px ${accent}30`
+                : "0 40px 80px -30px rgba(0,0,0,0.8)",
+              transition: "box-shadow 1.2s ease-out",
+            }}
           >
             <div style={imageWrapStyle}>
               <Image

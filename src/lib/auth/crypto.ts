@@ -12,9 +12,9 @@ export type SessionPayload = {
 
 const secret = process.env.SESSION_SECRET
 if (!secret && process.env.NODE_ENV === "production") {
-  // Don't hard-crash the build, but make the misconfiguration loud.
-  console.warn(
-    "[auth] SESSION_SECRET is not set — sessions use an insecure fallback key."
+  throw new Error(
+    "[auth] SESSION_SECRET environment variable is not set. " +
+    "Set a strong random secret (e.g. `openssl rand -hex 32`) to prevent session forgery."
   )
 }
 const encodedKey = new TextEncoder().encode(

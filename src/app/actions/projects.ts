@@ -27,8 +27,19 @@ const ProjectSchema = z.object({
   period: z.string().optional(),
   role: z.string().optional(),
   status: z.enum(["Live", "In Progress", "Archived"]),
-  website: z.string().optional(),
-  source: z.string().optional(),
+  // Only allow http(s) URLs — blocks javascript: and data: schemes
+  website: z
+    .string()
+    .url("Must be a valid URL")
+    .refine((u) => /^https?:\/\//i.test(u), "Must start with http:// or https://")
+    .optional()
+    .or(z.literal("")),
+  source: z
+    .string()
+    .url("Must be a valid URL")
+    .refine((u) => /^https?:\/\//i.test(u), "Must start with http:// or https://")
+    .optional()
+    .or(z.literal("")),
   featured: z.boolean().optional(),
   sortOrder: z.coerce.number().int().optional(),
 })

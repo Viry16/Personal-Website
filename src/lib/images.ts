@@ -9,13 +9,14 @@ import { images } from "./db/schema"
 export const MAX_IMAGE_BYTES = 4 * 1024 * 1024 // 4 MB
 export const MAX_DOC_BYTES = 6 * 1024 * 1024 // 6 MB
 
+// SVG is intentionally excluded: browsers execute <script> tags inside SVGs
+// served with Content-Type: image/svg+xml, which creates a stored-XSS vector.
 const IMAGE_MIME = new Set([
   "image/png",
   "image/jpeg",
   "image/webp",
   "image/gif",
   "image/avif",
-  "image/svg+xml",
 ])
 const DOC_MIME = new Set(["application/pdf"])
 

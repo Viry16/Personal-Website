@@ -11,34 +11,33 @@ import {
   LinkedInIcon,
 } from "@/components/ui/SocialIcons"
 
-// Staggered entrance: each hero block fades in from below with a blur that
-// sharpens as it lands — one springy, coordinated sequence on page load.
+// Staggered entrance: each hero block slides up into place with a spring.
+// IMPORTANT: no opacity:0 or blur — Chrome disqualifies invisible/blurred
+// elements from Largest Contentful Paint, and any of these text blocks can
+// end up as the LCP element.
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 }
 
 const item: Variants = {
-  hidden: { opacity: 0, y: 28, filter: "blur(8px)" },
+  hidden: { y: 20, scale: 0.98 },
   show: {
-    opacity: 1,
     y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   },
 }
 
-// Variant for the profile photo (the LCP element). Same slide-up + blur-sharpen
-// entrance, but WITHOUT fading opacity from 0 — Chrome disqualifies opacity:0
-// elements from Largest Contentful Paint, so gating the photo behind the fade
-// pushed LCP out to when the animation finished. Keeping opacity:1 lets the
-// image count as painted immediately while still animating into place.
+// Variant for the profile photo (the LCP element). NEVER uses opacity:0 —
+// Chrome disqualifies invisible elements from Largest Contentful Paint.
+// Uses transform-only entrance so the image is counted as "painted" on the
+// first frame, while the ProfileCard's own 3D entrance provides the motion.
 const media: Variants = {
-  hidden: { y: 24, filter: "blur(6px)" },
+  hidden: { y: 12 },
   show: {
     y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   },
 }
 

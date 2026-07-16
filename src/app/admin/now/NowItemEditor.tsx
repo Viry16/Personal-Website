@@ -1,6 +1,7 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
+import { Pencil, X } from "lucide-react"
 import {
   createNowItem,
   updateNowItem,
@@ -18,12 +19,43 @@ interface NowItemEditorProps {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm text-(--color-text-primary) outline-none transition-colors focus:border-(--color-text-muted)"
+  "w-full rounded-lg border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-primary) outline-none transition-colors focus:border-(--color-text-muted)"
 
+/**
+ * For new items: renders the form directly.
+ * For existing items: renders an "Edit" button that expands into the form.
+ */
 export function NowItemEditor({ item }: NowItemEditorProps) {
-  const action = item
-    ? updateNowItem.bind(null, item.id)
-    : createNowItem
+  const [editing, setEditing] = useState(false)
+
+  // New item — always show the form
+  if (!item) return <NowItemForm onDone={() => {}} />
+
+  // Existing item — toggle between button and form
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="flex items-center gap-1.5 rounded-lg border border-(--color-border) px-3 py-1.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:text-(--color-text-primary)"
+      >
+        <Pencil className="h-3.5 w-3.5" />
+        Edit
+      </button>
+    )
+  }
+
+  return <NowItemForm item={item} onDone={() => setEditing(false)} />
+}
+
+function NowItemForm({
+  item,
+  onDone,
+}: {
+  item?: NowItemEditorProps["item"]
+  onDone: () => void
+}) {
+  const action = item ? updateNowItem.bind(null, item.id) : createNowItem
 
   const [state, formAction, pending] = useActionState<NowItemFormState, FormData>(
     action,
@@ -32,20 +64,23 @@ export function NowItemEditor({ item }: NowItemEditorProps) {
   const errs = state.fieldErrors ?? {}
 
   return (
-    <form action={formAction} className="w-full">
+    <form action={formAction} className="w-full space-y-3">
       {state.error && (
-        <p className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+        <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
           {state.error}
         </p>
       )}
       {state.ok && (
-        <p className="mb-3 rounded-lg border border-(--color-signal)/30 bg-(--color-signal)/10 px-3 py-2 text-sm text-(--color-signal)">
+        <p className="rounded-lg border border-(--color-signal)/30 bg-(--color-signal)/10 px-3 py-2 text-sm text-(--color-signal)">
           Saved.
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
+          <label className="mb-1 block text-xs font-medium text-(--color-text-muted)">
+            Icon key
+          </label>
           <input
             name="icon"
             defaultValue={item?.icon}
@@ -57,6 +92,9 @@ export function NowItemEditor({ item }: NowItemEditorProps) {
           )}
         </div>
         <div>
+          <label className="mb-1 block text-xs font-medium text-(--color-text-muted)">
+            Label
+          </label>
           <input
             name="label"
             defaultValue={item?.label}
@@ -67,7 +105,13 @@ export function NowItemEditor({ item }: NowItemEditorProps) {
             <p className="mt-0.5 text-xs text-red-500">{errs.label[0]}</p>
           )}
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_80px]">
         <div>
+          <label className="mb-1 block text-xs font-medium text-(--color-text-muted)">
+            Value
+          </label>
           <input
             name="value"
             defaultValue={item?.value}
@@ -78,22 +122,37 @@ export function NowItemEditor({ item }: NowItemEditorProps) {
             <p className="mt-0.5 text-xs text-red-500">{errs.value[0]}</p>
           )}
         </div>
-        <div className="flex items-start gap-2">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-(--color-text-muted)">
+            Order
+          </label>
           <input
             name="sortOrder"
             type="number"
             defaultValue={item?.sortOrder ?? 0}
-            className={`${inputClass} w-16`}
-            title="Sort order"
+            className={inputClass}
           />
-          <button
-            type="submit"
-            disabled={pending}
-            className="shrink-0 rounded-lg bg-(--color-text-primary) px-4 py-2 text-sm font-semibold text-(--color-bg) transition-opacity hover:opacity-90 disabled:opacity-60"
-          >
-            {pending ? "…" : item ? "Update" : "Add"}
-          </button>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 pt-1">
+        <button
+          type="submit"
+          disabled={pending}
+          className="rounded-lg bg-(--color-text-primary) px-4 py-2 text-sm font-semibold text-(--color-bg) transition-opacity hover:opacity-90 disabled:opacity-60"
+        >
+          {pending ? "Saving…" : item ? "Update" : "Add item"}
+        </button>
+        {item && (
+          <button
+            type="button"
+            onClick={onDone}
+            className="flex items-center gap-1.5 rounded-lg border border-(--color-border) px-3 py-2 text-sm font-medium text-(--color-text-secondary) transition-colors hover:text-(--color-text-primary)"
+          >
+            <X className="h-3.5 w-3.5" />
+            Cancel
+          </button>
+        )}
       </div>
     </form>
   )

@@ -207,32 +207,34 @@ async function fetchRepoCommits(
       }
     }
 
-    const collected: CommitItem[] = []
+    // Fetch commits from all repos in parallel (was: serial await in for-loop)
+    const repoResults = await Promise.all(
+      repos.slice(0, 8).map(async (repo) => {
+        try {
+          const commitsRes = await fetch(
+            `https://api.github.com/repos/${repo.full_name}/commits?per_page=5&author=${username}`,
+            { headers, next: { revalidate: REVALIDATE_SECONDS } }
+          )
+          if (!commitsRes.ok) return []
+          const repoCommits: ApiCommit[] = await commitsRes.json()
+          if (!Array.isArray(repoCommits)) return []
+          return repoCommits.map((rc) => ({
+            sha: rc.sha.slice(0, 7),
+            repo: repo.name,
+            branch: repo.default_branch ?? "main",
+            message: (rc.commit?.message ?? "").split("\n")[0],
+            date:
+              rc.commit?.author?.date ??
+              rc.commit?.committer?.date ??
+              new Date().toISOString(),
+          }))
+        } catch {
+          return []
+        }
+      })
+    )
 
-    for (const repo of repos) {
-
-      const commitsRes = await fetch(
-        `https://api.github.com/repos/${repo.full_name}/commits?per_page=5&author=${username}`,
-        { headers, next: { revalidate: REVALIDATE_SECONDS } }
-      )
-      if (!commitsRes.ok) continue
-
-      const repoCommits: ApiCommit[] = await commitsRes.json()
-      if (!Array.isArray(repoCommits)) continue
-
-      for (const rc of repoCommits) {
-        collected.push({
-          sha: rc.sha.slice(0, 7),
-          repo: repo.name,
-          branch: repo.default_branch ?? "main",
-          message: (rc.commit?.message ?? "").split("\n")[0],
-          date:
-            rc.commit?.author?.date ??
-            rc.commit?.committer?.date ??
-            new Date().toISOString(),
-        })
-      }
-    }
+    const collected: CommitItem[] = repoResults.flat()
 
     // Most recent first across all repos
     collected.sort(
