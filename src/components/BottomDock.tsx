@@ -39,11 +39,23 @@ export function BottomDock({
         <Link
           href="/"
           aria-label={`${name} — Home`}
-          className="mr-1 flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden transition-transform duration-300 hover:-translate-y-1"
+          className="mr-1 flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden transition-transform duration-300"
         >
           {/* unoptimized: the logo may be a DB-served upload (/api/images/…) of
-              any format (incl. SVG); skip the optimizer so it always renders. */}
-          <Image src={logo} alt="" width={22} height={22} unoptimized className="translate-y-[1.3px] translate-x-[0.8px]" />
+              any format (incl. SVG); skip the optimizer so it always renders.
+              priority: it's flagged as the LCP element, so load it eagerly.
+              Both dimensions are pinned in CSS to keep the SVG's aspect ratio
+              from being reported as distorted. */}
+          <Image
+            src={logo}
+            alt=""
+            width={22}
+            height={22}
+            priority
+            unoptimized
+            style={{ width: 22, height: 22 }}
+            className="translate-y-[1.3px] translate-x-[0.8px]"
+          />
         </Link>
 
         <div className="w-px h-7 md:h-8 bg-(--color-border) mx-0.5 md:mx-1" />

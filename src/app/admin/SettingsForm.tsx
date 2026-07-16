@@ -7,7 +7,7 @@ import {
   type SettingsFormState,
 } from "@/app/actions/settings"
 
-// Plain text fields. Logo and resume are handled separately (file uploads).
+// Plain text fields. Logo, resume, and about image are handled separately (file uploads).
 const FIELDS: { name: keyof SiteSettings; label: string; hint?: string }[] = [
   { name: "name", label: "Name" },
   { name: "title", label: "Browser / SEO title" },
@@ -33,6 +33,9 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
     settings.logo
   )
   const [resumeName, setResumeName] = useState<string | undefined>()
+  const [aboutImgPreview, setAboutImgPreview] = useState<string | undefined>(
+    settings.aboutImage
+  )
 
   return (
     <form action={action} className="max-w-2xl space-y-6">
@@ -46,6 +49,11 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           Saved.
         </p>
       )}
+
+      {/* ── Identity & Links ──────────────────────────────── */}
+      <div className="text-xs font-semibold uppercase tracking-wider text-(--color-text-muted)">
+        Identity &amp; Links
+      </div>
 
       {FIELDS.map((f) => (
         <div key={f.name}>
@@ -65,7 +73,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           <input
             id={f.name}
             name={f.name}
-            defaultValue={settings[f.name]}
+            defaultValue={settings[f.name] as string}
             className={inputClass}
           />
           {errs[f.name]?.[0] && (
@@ -151,6 +159,159 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         {errs.resume?.[0] && (
           <p className="mt-1 text-xs text-red-500">{errs.resume[0]}</p>
         )}
+      </div>
+
+      {/* ── Page Content ──────────────────────────────────── */}
+      <div className="border-t border-(--color-border) pt-6">
+        <div className="text-xs font-semibold uppercase tracking-wider text-(--color-text-muted) mb-6">
+          Page Content
+        </div>
+
+        {/* Hero Tagline */}
+        <div className="mb-6">
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <label htmlFor="heroTagline" className="text-sm font-medium text-(--color-text-primary)">
+              Hero tagline
+            </label>
+            <span className="text-xs text-(--color-text-muted)">
+              Long paragraph below your name on the home page
+            </span>
+          </div>
+          <textarea
+            id="heroTagline"
+            name="heroTagline"
+            rows={3}
+            defaultValue={settings.heroTagline}
+            className={inputClass}
+          />
+          {errs.heroTagline?.[0] && (
+            <p className="mt-1 text-xs text-red-500">{errs.heroTagline[0]}</p>
+          )}
+        </div>
+
+        {/* About Bio */}
+        <div className="mb-6">
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <label htmlFor="aboutBio" className="text-sm font-medium text-(--color-text-primary)">
+              About bio
+            </label>
+            <span className="text-xs text-(--color-text-muted)">
+              Use blank lines for paragraph breaks
+            </span>
+          </div>
+          <textarea
+            id="aboutBio"
+            name="aboutBio"
+            rows={6}
+            defaultValue={settings.aboutBio}
+            className={inputClass}
+          />
+          {errs.aboutBio?.[0] && (
+            <p className="mt-1 text-xs text-red-500">{errs.aboutBio[0]}</p>
+          )}
+        </div>
+
+        {/* About Image */}
+        <div className="mb-6">
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <label className="text-sm font-medium text-(--color-text-primary)">
+              About page photo
+            </label>
+            <span className="text-xs text-(--color-text-muted)">
+              Upload or paste a path/URL
+            </span>
+          </div>
+          <div className="flex items-start gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={aboutImgPreview || "/assets/image/profile_image/excel.webp"}
+              alt=""
+              className="h-20 w-20 shrink-0 rounded-xl border border-(--color-border) object-cover"
+            />
+            <div className="min-w-0 flex-1 space-y-2">
+              <input
+                type="file"
+                name="aboutImageFile"
+                accept="image/png,image/jpeg,image/webp,image/avif"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) setAboutImgPreview(URL.createObjectURL(file))
+                }}
+                className="block w-full text-sm text-(--color-text-secondary) file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-(--color-border) file:bg-(--color-surface) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-text-primary) hover:file:opacity-90"
+              />
+              <input
+                name="aboutImage"
+                defaultValue={settings.aboutImage}
+                placeholder="/assets/image/profile_image/photo.webp"
+                className={inputClass}
+              />
+            </div>
+          </div>
+          {errs.aboutImage?.[0] && (
+            <p className="mt-1 text-xs text-red-500">{errs.aboutImage[0]}</p>
+          )}
+        </div>
+      </div>
+
+      {/* ── Terminal Config ───────────────────────────────── */}
+      <div className="border-t border-(--color-border) pt-6">
+        <div className="text-xs font-semibold uppercase tracking-wider text-(--color-text-muted) mb-6">
+          Terminal Identity
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="terminalUsername" className="mb-1.5 block text-sm font-medium text-(--color-text-primary)">
+              Username
+            </label>
+            <input
+              id="terminalUsername"
+              name="terminalUsername"
+              defaultValue={settings.terminalUsername}
+              placeholder="excel_viryan"
+              className={inputClass}
+            />
+            {errs.terminalUsername?.[0] && (
+              <p className="mt-1 text-xs text-red-500">{errs.terminalUsername[0]}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="terminalRole" className="mb-1.5 block text-sm font-medium text-(--color-text-primary)">
+              Role / title
+            </label>
+            <input
+              id="terminalRole"
+              name="terminalRole"
+              defaultValue={settings.terminalRole}
+              placeholder="AI/ML Engineer & IoT Builder"
+              className={inputClass}
+            />
+            {errs.terminalRole?.[0] && (
+              <p className="mt-1 text-xs text-red-500">{errs.terminalRole[0]}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <label htmlFor="terminalSkills" className="text-sm font-medium text-(--color-text-primary)">
+              Skills
+            </label>
+            <span className="text-xs text-(--color-text-muted)">
+              One per line — shown by &quot;cat skills.txt&quot;
+            </span>
+          </div>
+          <textarea
+            id="terminalSkills"
+            name="terminalSkills"
+            rows={4}
+            defaultValue={settings.terminalSkills.join("\n")}
+            className={`${inputClass} font-mono text-xs`}
+          />
+          {errs.terminalSkills?.[0] && (
+            <p className="mt-1 text-xs text-red-500">{errs.terminalSkills[0]}</p>
+          )}
+        </div>
       </div>
 
       <div className="border-t border-(--color-border) pt-6">

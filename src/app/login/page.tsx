@@ -20,9 +20,9 @@ export default function LoginPage() {
           <h1 className="font-display text-xl font-bold text-(--color-text-primary)">
             Admin access
           </h1>
-          <p className="mt-1 text-sm text-(--color-text-secondary)">
+          {/* <p className="mt-1 text-sm text-(--color-text-secondary)">
             Enter your password to manage projects and site settings.
-          </p>
+          </p> */}
         </div>
 
         <form action={action} className="space-y-4">

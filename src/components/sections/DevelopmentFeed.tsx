@@ -1,10 +1,17 @@
 import { GitBranch } from "lucide-react"
 import { getRecentCommits } from "@/lib/github"
-import { SITE } from "@/lib/site"
 import { timeAgo } from "@/lib/utils"
 
-export async function DevelopmentFeed() {
-  const commits = await getRecentCommits(SITE.githubUsername, 5)
+interface DevelopmentFeedProps {
+  githubUsername: string
+  githubUrl: string
+}
+
+export async function DevelopmentFeed({
+  githubUsername,
+  githubUrl,
+}: DevelopmentFeedProps) {
+  const commits = await getRecentCommits(githubUsername, 5)
 
   return (
     <div>
@@ -13,7 +20,7 @@ export async function DevelopmentFeed() {
       </h3>
       <p className="mb-6 max-w-xl text-sm leading-relaxed text-(--color-text-secondary)">
         When the graph goes quiet, I haven&apos;t stopped — if I&apos;m not
-        writing code, I&apos;m reading, building hardware, or sketching the next
+        writing code, I&apos;m designing, building hardware, or sketching the next
         idea.
       </p>
 
@@ -49,7 +56,7 @@ export async function DevelopmentFeed() {
             No recent public commits to show — plenty happening off the graph,
             though. Catch the latest on{" "}
             <a
-              href={SITE.github}
+              href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-(--color-text-primary)"

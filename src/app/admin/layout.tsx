@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { LayoutDashboard, Settings, ExternalLink, LogOut } from "lucide-react"
+import { LayoutDashboard, Settings, ExternalLink, LogOut, Briefcase, Radio } from "lucide-react"
 import { verifySession } from "@/lib/auth/session"
 import { logout } from "@/app/actions/auth"
 
@@ -33,7 +33,21 @@ export default async function AdminLayout({
               className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-medium text-(--color-text-secondary) transition-colors hover:bg-(--color-border)/50 hover:text-(--color-text-primary)"
             >
               <Settings className="h-4 w-4" />
-              Site settings
+              Settings
+            </Link>
+            <Link
+              href="/admin/experiences"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-medium text-(--color-text-secondary) transition-colors hover:bg-(--color-border)/50 hover:text-(--color-text-primary)"
+            >
+              <Briefcase className="h-4 w-4" />
+              Experiences
+            </Link>
+            <Link
+              href="/admin/now"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-medium text-(--color-text-secondary) transition-colors hover:bg-(--color-border)/50 hover:text-(--color-text-primary)"
+            >
+              <Radio className="h-4 w-4" />
+              Now Feed
             </Link>
           </nav>
 

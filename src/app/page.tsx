@@ -8,16 +8,19 @@ import { CodeActivitySection } from "@/components/sections/CodeActivitySection"
 import { FeaturedProjects } from "@/components/sections/FeaturedProjects"
 import { ContactCTA } from "@/components/sections/ContactCTA"
 import { Reveal } from "@/components/ui/Reveal"
-import { getSiteSettings } from "@/lib/data"
+import { getSiteSettings, getExperiences } from "@/lib/data"
 
 export default async function Home() {
-  const site = await getSiteSettings()
+  const [site, experiences] = await Promise.all([
+    getSiteSettings(),
+    getExperiences(),
+  ])
   return (
     <main className="min-h-screen selection:bg-(--color-text-primary) selection:text-(--color-surface)">
 
       <div className="mx-auto max-w-5xl px-6 md:px-12 pb-32">
         <HomePreview site={site} />
-        <Reveal><WorkSection /></Reveal>
+        <Reveal><WorkSection experiences={experiences} /></Reveal>
         <Reveal><CodeActivitySection /></Reveal>
         <FeaturedProjects />
         <Reveal><ContactCTA /></Reveal>

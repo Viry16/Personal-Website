@@ -30,6 +30,13 @@ const SettingsSchema = z.object({
   // Optional here: an uploaded file (handled separately) can supply these.
   resume: z.string().optional(),
   logo: z.string().optional(),
+  // New content fields
+  aboutBio: z.string().min(1, "About bio is required"),
+  aboutImage: z.string().optional(),
+  heroTagline: z.string().min(1, "Hero tagline is required"),
+  terminalUsername: z.string().min(1, "Terminal username is required"),
+  terminalRole: z.string().min(1, "Terminal role is required"),
+  terminalSkills: z.string().optional(),
 })
 
 /**
@@ -52,6 +59,15 @@ async function resolveAsset(
   }
   if (textValue) return { url: textValue }
   return { error: "Upload a file or provide a path/URL." }
+}
+
+/** Splits a textarea into a trimmed, non-empty list (one item per line). */
+function toList(v: string | undefined): string[] {
+  if (!v) return []
+  return v
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
 }
 
 export async function updateSiteSettings(
@@ -81,15 +97,35 @@ export async function updateSiteSettings(
     return { fieldErrors: { resume: [resume.error ?? "Resume required."] } }
   }
 
+  const aboutImage = await resolveAsset(
+    formData,
+    "aboutImageFile",
+    d.aboutImage,
+    saveUploadedImage
+  )
+  if (!aboutImage.url) {
+    return { fieldErrors: { aboutImage: [aboutImage.error ?? "About image required."] } }
+  }
+
   // Grab the current assets so we can clean up any DB-stored ones we replace.
   const existing = await db
-    .select({ logo: siteSettings.logo, resume: siteSettings.resume })
+    .select({
+      logo: siteSettings.logo,
+      resume: siteSettings.resume,
+      aboutImage: siteSettings.aboutImage,
+    })
     .from(siteSettings)
     .where(eq(siteSettings.id, 1))
     .limit(1)
   const previous = existing[0]
 
-  const values = { ...d, logo: logo.url, resume: resume.url }
+  const values = {
+    ...d,
+    logo: logo.url,
+    resume: resume.url,
+    aboutImage: aboutImage.url,
+    terminalSkills: toList(d.terminalSkills),
+  }
 
   try {
     await db
@@ -103,12 +139,15 @@ export async function updateSiteSettings(
     return { error: `Failed to save settings: ${(err as Error).message}` }
   }
 
-  // Remove old DB-stored logo/CV if they were swapped out.
+  // Remove old DB-stored logo/CV/about-image if they were swapped out.
   if (previous?.logo && previous.logo !== logo.url) {
     await deleteManagedUpload(previous.logo)
   }
   if (previous?.resume && previous.resume !== resume.url) {
     await deleteManagedUpload(previous.resume)
+  }
+  if (previous?.aboutImage && previous.aboutImage !== aboutImage.url) {
+    await deleteManagedUpload(previous.aboutImage)
   }
 
   // Site identity feeds every page's metadata + chrome, so revalidate the

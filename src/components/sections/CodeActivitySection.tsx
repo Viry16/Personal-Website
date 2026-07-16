@@ -1,9 +1,10 @@
 import { getContributions } from "@/lib/github"
-import { SITE } from "@/lib/site"
+import { getSiteSettings } from "@/lib/data"
 import { ContributionGraph } from "./ContributionGraph"
 
 export async function CodeActivitySection() {
-  const contributions = await getContributions(SITE.githubUsername)
+  const site = await getSiteSettings()
+  const contributions = await getContributions(site.githubUsername)
 
   return (
     <section className="py-16 md:py-24 border-t border-(--color-border)">
@@ -32,7 +33,7 @@ export async function CodeActivitySection() {
                 Contribution data is unavailable right now — see my activity
                 directly on{" "}
                 <a
-                  href={SITE.github}
+                  href={site.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline hover:text-(--color-text-primary)"

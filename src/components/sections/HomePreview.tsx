@@ -28,6 +28,20 @@ const item: Variants = {
   },
 }
 
+// Variant for the profile photo (the LCP element). Same slide-up + blur-sharpen
+// entrance, but WITHOUT fading opacity from 0 — Chrome disqualifies opacity:0
+// elements from Largest Contentful Paint, so gating the photo behind the fade
+// pushed LCP out to when the animation finished. Keeping opacity:1 lets the
+// image count as painted immediately while still animating into place.
+const media: Variants = {
+  hidden: { y: 24, filter: "blur(6px)" },
+  show: {
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+}
+
 export function HomePreview({ site = SITE }: { site?: SiteSettings }) {
   const socialLinks = [
     { href: site.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
@@ -58,10 +72,7 @@ export function HomePreview({ site = SITE }: { site?: SiteSettings }) {
             variants={item}
             className="text-lg leading-relaxed text-(--color-text-secondary) max-w-xl"
           >
-            A software developer with roots in multimedia design and a deep focus
-            on AI. I build robust backends, bridge them with responsive
-            frontends, and integrate ML, deep learning, and NLP models — lately
-            channeling all of it into next-generation IoT solutions.
+            {site.heroTagline}
           </motion.p>
 
 
@@ -119,13 +130,13 @@ export function HomePreview({ site = SITE }: { site?: SiteSettings }) {
         </div>
 
         {/* Mobile only: profile card sits below the CTAs */}
-        <motion.div variants={item} className="flex justify-center pt-6 md:hidden">
+        <motion.div variants={media} className="flex justify-center pt-6 md:hidden">
           <ProfileCard scale={0.7} />
         </motion.div>
 
         {/* Desktop only: interactive profile card on the right */}
         <motion.div
-          variants={item}
+          variants={media}
           className="hidden md:block flex-shrink-0 origin-top"
         >
           <ProfileCard scale={0.7} />

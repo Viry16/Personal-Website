@@ -60,6 +60,13 @@ export const siteSettings = pgTable("site_settings", {
   instagram: text("instagram").notNull(),
   resume: text("resume").notNull(),
   logo: text("logo").notNull(),
+  // --- New content fields ---
+  aboutBio: text("about_bio").notNull().default(""),
+  aboutImage: text("about_image").notNull().default(""),
+  heroTagline: text("hero_tagline").notNull().default(""),
+  terminalUsername: text("terminal_username").notNull().default(""),
+  terminalRole: text("terminal_role").notNull().default(""),
+  terminalSkills: text("terminal_skills").array().notNull().default([]),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -78,7 +85,55 @@ export const images = pgTable("images", {
     .defaultNow(),
 })
 
+/**
+ * Scores for the terminal easter-egg game (`./secret.sh` on /about — crack the
+ * 4-digit code). Public inserts (no auth): players type a display name after
+ * winning. Ranked by fewest attempts, then fastest time.
+ */
+export const leaderboard = pgTable("leaderboard", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  attempts: integer("attempts").notNull(),
+  timeMs: integer("time_ms").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+/**
+ * Work/experience entries shown in the home page "Experience" section.
+ */
+export const experiences = pgTable("experiences", {
+  id: serial("id").primaryKey(),
+  role: text("role").notNull(),
+  company: text("company").notNull(),
+  date: text("date").notNull(),
+  logo: text("logo").notNull().default(""),
+  description: text("description").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+/**
+ * "What I'm doing now" feed items shown on the about page.
+ * `icon` is a string key (e.g. "reading", "building", "listening") that maps
+ * to a lucide icon in the component.
+ */
+export const nowItems = pgTable("now_items", {
+  id: serial("id").primaryKey(),
+  icon: text("icon").notNull().default("code"),
+  label: text("label").notNull(),
+  value: text("value").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
 export type ProjectRow = typeof projects.$inferSelect
 export type NewProjectRow = typeof projects.$inferInsert
 export type SiteSettingsRow = typeof siteSettings.$inferSelect
 export type ImageRow = typeof images.$inferSelect
+export type LeaderboardRow = typeof leaderboard.$inferSelect
+export type ExperienceRow = typeof experiences.$inferSelect
+export type NowItemRow = typeof nowItems.$inferSelect
