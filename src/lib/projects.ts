@@ -6,6 +6,7 @@ export interface Project {
   id?: number
   title: string
   subtitle?: string
+  shortDescription: string
   description: string
   highlights: string[]
   tags: string[]
@@ -34,6 +35,7 @@ export const PROJECTS: Project[] = [
   {
     title: "AMCS",
     subtitle: "Autonomous Monitoring & Control System",
+    shortDescription: "Computer vision system that detects plant diseases early, paired with IoT sensors.",
     description:
       "Computer vision system that detects plant diseases early, paired with IoT sensors that auto-adjust greenhouse conditions. Built in partnership with BRIN researchers.",
     highlights: [
@@ -61,6 +63,7 @@ export const PROJECTS: Project[] = [
   },
   {
     title: "Clearity",
+    shortDescription: "Free browser-based photo editor with AI features like background removal and style transfer.",
     description:
       "Free browser-based photo editor with AI features like background removal and style transfer that run entirely in-browser — no expensive servers required.",
     highlights: [
@@ -80,6 +83,7 @@ export const PROJECTS: Project[] = [
   },
   {
     title: "SCIO",
+    shortDescription: "An intelligent RAG chatbot that answers IT support questions by reading private company documents.",
     description:
       "An intelligent RAG chatbot that answers IT support questions by reading private company documents, eliminating repetitive manual support tickets.",
     highlights: [
@@ -97,6 +101,7 @@ export const PROJECTS: Project[] = [
   },
   {
     title: "Smart Factory Automation System",
+    shortDescription: "Computer vision + IoT system that automatically sorts factory items and detects defects.",
     description:
       "Computer vision + IoT system that automatically sorts factory items and detects defects in real-time, replacing slow manual sorting.",
     highlights: [

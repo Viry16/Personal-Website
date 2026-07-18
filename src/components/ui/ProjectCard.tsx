@@ -43,6 +43,7 @@ type ProjectCardProps = Partial<Project> &
 export function ProjectCard({
   title,
   subtitle,
+  shortDescription,
   description,
   tags,
   image,
@@ -116,7 +117,7 @@ export function ProjectCard({
         )}
 
         <p className="mt-3 text-sm leading-relaxed text-(--color-text-secondary) line-clamp-3">
-          {description}
+          {shortDescription}
         </p>
 
         {/* Minimal tags — plain mono words */}

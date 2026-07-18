@@ -17,6 +17,7 @@ export type ProjectFormState = {
 const ProjectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().optional(),
+  shortDescription: z.string().min(1, "Short description is required"),
   description: z.string().min(1, "Description is required"),
   // Textareas: one item per line.
   highlights: z.string().optional(),
@@ -50,6 +51,7 @@ function parseForm(formData: FormData) {
   return ProjectSchema.safeParse({
     title: formData.get("title"),
     subtitle: str(formData.get("subtitle")),
+    shortDescription: formData.get("shortDescription"),
     description: formData.get("description"),
     highlights: str(formData.get("highlights")),
     tags: str(formData.get("tags")),
@@ -160,6 +162,7 @@ export async function createProject(
     await db.insert(projects).values({
       title: d.title,
       subtitle: d.subtitle ?? null,
+      shortDescription: d.shortDescription,
       description: d.description,
       highlights: toList(d.highlights),
       tags: toList(d.tags),
@@ -219,6 +222,7 @@ export async function updateProject(
       .set({
         title: d.title,
         subtitle: d.subtitle ?? null,
+        shortDescription: d.shortDescription,
         description: d.description,
         highlights: toList(d.highlights),
         tags: toList(d.tags),

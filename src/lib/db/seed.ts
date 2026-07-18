@@ -40,6 +40,7 @@ async function main() {
       PROJECTS.map((p, i) => ({
         title: p.title,
         subtitle: p.subtitle ?? null,
+        shortDescription: p.shortDescription,
         description: p.description,
         highlights: p.highlights,
         tags: p.tags,

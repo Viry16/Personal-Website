@@ -70,7 +70,16 @@ export function ProjectForm({
         />
       </Field>
 
-      <Field label="Description" error={errs.description}>
+      <Field label="Short Description (Card)" error={errs.shortDescription}>
+        <textarea
+          name="shortDescription"
+          rows={2}
+          defaultValue={project?.shortDescription}
+          className={inputClass}
+        />
+      </Field>
+
+      <Field label="Full Description (Modal)" error={errs.description}>
         <textarea
           name="description"
           rows={3}

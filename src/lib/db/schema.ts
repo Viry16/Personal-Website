@@ -27,6 +27,7 @@ export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   subtitle: text("subtitle"),
+  shortDescription: text("short_description").notNull().default(""),
   description: text("description").notNull(),
   // Postgres text[] columns. Always provided by the app, so no DB default.
   highlights: text("highlights").array().notNull(),

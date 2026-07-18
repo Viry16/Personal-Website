@@ -76,6 +76,7 @@ function rowToProject(r: ProjectRow): Project {
     id: r.id,
     title: r.title,
     subtitle: r.subtitle ?? undefined,
+    shortDescription: r.shortDescription,
     description: r.description,
     highlights: r.highlights,
     tags: r.tags,
