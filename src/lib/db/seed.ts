@@ -44,6 +44,7 @@ async function main() {
         highlights: p.highlights,
         tags: p.tags,
         image: p.image,
+        images: p.images ?? [],
         type: p.type,
         period: p.period,
         role: p.role,

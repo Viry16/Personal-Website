@@ -27,10 +27,23 @@ export function ProjectForm({
 
   // Preview: the newly-picked file, or the project's existing image.
   const [preview, setPreview] = useState<string | undefined>(project?.image)
+  const [additionalImages, setAdditionalImages] = useState<string[]>(project?.images ?? [])
+  const [newImageUrl, setNewImageUrl] = useState("")
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) setPreview(URL.createObjectURL(file))
+  }
+
+  function addImageUrl() {
+    if (newImageUrl.trim()) {
+      setAdditionalImages([...additionalImages, newImageUrl.trim()])
+      setNewImageUrl("")
+    }
+  }
+
+  function removeAdditionalImage(index: number) {
+    setAdditionalImages(additionalImages.filter((_, i) => i !== index))
   }
 
   return (
@@ -114,6 +127,66 @@ export function ProjectForm({
               placeholder="…or /projects/example.png or https://…"
               className={inputClass}
             />
+          </div>
+        </div>
+      </Field>
+
+      <Field
+        label="Additional Images"
+        hint="Upload multiple files or add paths/URLs"
+        error={errs.images}
+      >
+        <div className="space-y-3">
+          {additionalImages.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {additionalImages.map((src, i) => (
+                <div key={i} className="group relative h-16 w-24 overflow-hidden rounded-lg border border-(--color-border)">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeAdditionalImage(i)}
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <input type="hidden" name="images" value={JSON.stringify(additionalImages)} />
+
+          <div className="flex gap-2">
+            <input
+              type="file"
+              name="additionalImageFiles"
+              multiple
+              accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+              className="block w-full text-sm text-(--color-text-secondary) file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-(--color-border) file:bg-(--color-surface) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-text-primary) hover:file:opacity-90"
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            <input
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              placeholder="…or add /projects/example.png or https://…"
+              className={inputClass}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  addImageUrl()
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={addImageUrl}
+              className="rounded-lg border border-(--color-border) bg-(--color-surface) px-4 py-2 text-sm font-medium transition-colors hover:bg-(--color-border) hover:text-(--color-text-primary) text-(--color-text-secondary)"
+            >
+              Add
+            </button>
           </div>
         </div>
       </Field>

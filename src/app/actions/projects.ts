@@ -23,6 +23,7 @@ const ProjectSchema = z.object({
   tags: z.string().optional(),
   // Optional here: an uploaded file (handled separately) can supply the image.
   image: z.string().optional(),
+  images: z.string().optional(), // JSON encoded array
   type: z.enum(["Software", "Hardware"]),
   period: z.string().optional(),
   role: z.string().optional(),
@@ -52,6 +53,7 @@ function parseForm(formData: FormData) {
     highlights: str(formData.get("highlights")),
     tags: str(formData.get("tags")),
     image: formData.get("image"),
+    images: formData.get("images"),
     type: formData.get("type"),
     period: str(formData.get("period")),
     role: str(formData.get("role")),
@@ -99,6 +101,39 @@ async function resolveImage(
   return { error: "Upload an image or provide a path/URL." }
 }
 
+/**
+ * Resolves additional images: uploaded files + text URLs.
+ */
+async function resolveAdditionalImages(
+  formData: FormData,
+  textImages: string | undefined
+): Promise<{ urls?: string[]; error?: string }> {
+  let urls: string[] = []
+  
+  if (textImages) {
+    try {
+      urls = JSON.parse(textImages)
+      if (!Array.isArray(urls)) urls = []
+    } catch (e) {
+      urls = []
+    }
+  }
+
+  const files = formData.getAll("additionalImageFiles")
+  for (const file of files) {
+    if (file instanceof File && file.size > 0) {
+      try {
+        const uploadedUrl = await saveUploadedImage(file)
+        urls.push(uploadedUrl)
+      } catch (err) {
+        return { error: `Failed to upload additional image: ${(err as Error).message}` }
+      }
+    }
+  }
+
+  return { urls }
+}
+
 export async function createProject(
   _prev: ProjectFormState,
   formData: FormData
@@ -116,6 +151,9 @@ export async function createProject(
   const img = await resolveImage(formData, d.image)
   if (!img.url) return { fieldErrors: { image: [img.error ?? "Image required."] } }
 
+  const additionalImgs = await resolveAdditionalImages(formData, d.images)
+  if (additionalImgs.error) return { fieldErrors: { images: [additionalImgs.error] } }
+
   try {
     await db.insert(projects).values({
       title: d.title,
@@ -124,6 +162,7 @@ export async function createProject(
       highlights: toList(d.highlights),
       tags: toList(d.tags),
       image: img.url,
+      images: additionalImgs.urls ?? [],
       type: d.type,
       period: d.period ?? "",
       role: d.role ?? "",
@@ -159,13 +198,17 @@ export async function updateProject(
   const img = await resolveImage(formData, d.image)
   if (!img.url) return { fieldErrors: { image: [img.error ?? "Image required."] } }
 
+  const additionalImgs = await resolveAdditionalImages(formData, d.images)
+  if (additionalImgs.error) return { fieldErrors: { images: [additionalImgs.error] } }
+
   // Grab the current image so we can clean it up if the new one replaces it.
   const existing = await db
-    .select({ image: projects.image })
+    .select({ image: projects.image, images: projects.images })
     .from(projects)
     .where(eq(projects.id, id))
     .limit(1)
   const previousImage = existing[0]?.image
+  const previousImages = existing[0]?.images ?? []
 
   try {
     await db
@@ -177,6 +220,7 @@ export async function updateProject(
         highlights: toList(d.highlights),
         tags: toList(d.tags),
         image: img.url,
+        images: additionalImgs.urls ?? [],
         type: d.type,
         period: d.period ?? "",
         role: d.role ?? "",
@@ -195,6 +239,14 @@ export async function updateProject(
   // Drop the old DB-stored image if it was swapped out.
   if (previousImage && previousImage !== img.url) {
     await deleteManagedUpload(previousImage)
+  }
+  
+  // Clean up any deleted additional images
+  const currentImages = new Set(additionalImgs.urls ?? [])
+  for (const prevImg of previousImages) {
+    if (!currentImages.has(prevImg)) {
+      await deleteManagedUpload(prevImg)
+    }
   }
 
   revalidateProjectViews()

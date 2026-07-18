@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import Image from "next/image";
-import { X, Globe, ExternalLink } from "lucide-react";
+import { X, Globe, ExternalLink, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { Project, ProjectStatus } from "@/lib/projects";
 import { GitHubIcon } from "@/components/ui/SocialIcons";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
 /* ------------------------------------------------------------------ */
 /*  Status pill (reused style from ProjectCard)                        */
@@ -48,6 +49,17 @@ interface ProjectModalProps {
 }
 
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Build the full gallery: cover image + additional images
+  const allImages = project
+    ? [project.image, ...(project.images ?? [])]
+    : [];
+
+  const slideCount = allImages.length;
+  const hasMultiple = slideCount > 1;
+
   /* Lock body scroll & close on Escape */
   const handleKey = useCallback(
     (e: KeyboardEvent) => {
@@ -58,6 +70,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
 
   useEffect(() => {
     if (!project) return;
+    setActiveSlide(0);
     document.body.classList.add("modal-open");
     window.addEventListener("keydown", handleKey);
     return () => {
@@ -66,164 +79,274 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
     };
   }, [project, handleKey]);
 
+  const prevSlide = () =>
+    setActiveSlide((i) => (i - 1 + slideCount) % slideCount);
+  const nextSlide = () =>
+    setActiveSlide((i) => (i + 1) % slideCount);
+
   return (
-    <AnimatePresence>
-      {project && (
-        <motion.div
-          key="project-modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-12 md:py-20"
-          onClick={onClose}
-        >
-          {/* Backdrop */}
-          <div className="pointer-events-none fixed inset-0 bg-black/60 backdrop-blur-sm" />
-
-          {/* Panel */}
+    <>
+      <AnimatePresence>
+        {project && (
           <motion.div
-            key="project-modal-panel"
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative z-10 w-full max-w-2xl rounded-3xl border border-(--color-border) bg-(--color-surface) shadow-2xl"
+            key="project-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-12 md:py-20"
+            onClick={onClose}
           >
-            {/* Close button */}
-            <button
-              onClick={onClose}
-              aria-label="Close"
-              className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white/70 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
+            {/* Backdrop */}
+            <div className="pointer-events-none fixed inset-0 bg-black/60 backdrop-blur-sm" />
+
+            {/* Panel */}
+            <motion.div
+              key="project-modal-panel"
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative z-10 w-full max-w-2xl rounded-3xl border border-(--color-border) bg-(--color-surface) shadow-2xl"
             >
-              <X className="h-4 w-4" />
-            </button>
+              {/* Close button */}
+              <button
+                onClick={onClose}
+                aria-label="Close"
+                className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white/70 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
 
-            {/* Hero image */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-t-3xl">
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                sizes="(min-width: 768px) 640px, 100vw"
-                className="object-cover"
-                priority
-              />
-            </div>
-
-            {/* Content body */}
-            <div className="p-6 md:p-8">
-              {/* Badge row */}
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-                {project.status && (
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono font-medium uppercase tracking-wide backdrop-blur-md ${STATUS_COLORS[project.status]}`}
+              {/* Hero image / Carousel */}
+              <div className="relative aspect-video w-full overflow-hidden rounded-t-3xl group">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`slide-${activeSlide}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute inset-0"
                   >
-                    <StatusDot status={project.status} />
-                    {project.status}
+                    <Image
+                      src={allImages[activeSlide]}
+                      alt={`${project.title} — image ${activeSlide + 1}`}
+                      fill
+                      sizes="(min-width: 768px) 640px, 100vw"
+                      className="object-cover"
+                      priority
+                    />
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Zoom button overlay */}
+                <button
+                  onClick={() => setLightboxIndex(activeSlide)}
+                  aria-label="Zoom image"
+                  className="absolute inset-0 z-10 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/20 group-hover:opacity-100 cursor-zoom-in"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md">
+                    <ZoomIn className="h-5 w-5" />
                   </span>
+                </button>
+
+                {/* Carousel arrows */}
+                {hasMultiple && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevSlide();
+                      }}
+                      aria-label="Previous image"
+                      className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white/70 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextSlide();
+                      }}
+                      aria-label="Next image"
+                      className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white/70 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
                 )}
-                <Badge
-                  label={project.type}
-                  className="border-(--color-border) text-(--color-text-muted)"
-                />
-              </div>
 
-              {/* Title & subtitle */}
-              <h2 className="font-display text-2xl font-bold tracking-tight text-(--color-text-primary)">
-                {project.title}
-              </h2>
-              {project.subtitle && (
-                <p className="mt-1 text-sm text-(--color-text-secondary)">
-                  {project.subtitle}
-                </p>
-              )}
-
-              {/* Period · Role */}
-              {(project.period || project.role) && (
-                <p className="mt-3 font-mono text-xs uppercase tracking-wider text-(--color-text-muted)">
-                  {[project.period, project.role].filter(Boolean).join(" · ")}
-                </p>
-              )}
-
-              {/* Description */}
-              <p className="mt-4 text-sm leading-relaxed text-(--color-text-secondary)">
-                {project.description}
-              </p>
-
-              {/* Highlights */}
-              {project.highlights && project.highlights.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-(--color-text-muted)">
-                    Highlights
-                  </h3>
-                  <ul className="space-y-2">
-                    {project.highlights.map((item, i) => (
-                      <li
+                {/* Dot indicators */}
+                {hasMultiple && (
+                  <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1.5 backdrop-blur-md">
+                    {allImages.map((_, i) => (
+                      <button
                         key={i}
-                        className="flex gap-2.5 text-sm leading-relaxed text-(--color-text-secondary)"
-                      >
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-(--color-signal)" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Tech stack */}
-              {project.tags && project.tags.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-(--color-text-muted)">
-                    Tech Stack
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-(--color-border) bg-(--color-bg) px-3 py-1 font-mono text-[11px] text-(--color-text-secondary)"
-                      >
-                        {tag}
-                      </span>
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveSlide(i);
+                        }}
+                        aria-label={`Go to image ${i + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          i === activeSlide
+                            ? "w-4 bg-white"
+                            : "w-1.5 bg-white/40 hover:bg-white/60"
+                        }`}
+                      />
                     ))}
                   </div>
+                )}
+              </div>
+
+              {/* Thumbnail strip */}
+              {hasMultiple && (
+                <div className="flex gap-2 px-6 pt-4 overflow-x-auto scrollbar-none">
+                  {allImages.map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveSlide(i)}
+                      className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all duration-200 ${
+                        i === activeSlide
+                          ? "border-(--color-signal) ring-1 ring-(--color-signal)/30"
+                          : "border-transparent opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <Image
+                        src={src}
+                        alt={`Thumbnail ${i + 1}`}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
 
-              {/* Action links */}
-              {(project.website || project.source) && (
-                <div className="mt-8 flex flex-wrap items-center gap-3">
-                  {project.website && (
-                    <a
-                      href={project.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full bg-(--color-text-primary) px-5 py-2.5 text-sm font-medium text-(--color-bg) transition-opacity hover:opacity-80"
+              {/* Content body */}
+              <div className="p-6 md:p-8">
+                {/* Badge row */}
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                  {project.status && (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono font-medium uppercase tracking-wide backdrop-blur-md ${STATUS_COLORS[project.status]}`}
                     >
-                      <Globe className="h-4 w-4" />
-                      Live Preview
-                      <ExternalLink className="h-3 w-3 opacity-50" />
-                    </a>
+                      <StatusDot status={project.status} />
+                      {project.status}
+                    </span>
                   )}
-                  {project.source && (
-                    <a
-                      href={project.source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-(--color-border) px-5 py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-text-muted) hover:text-(--color-text-primary)"
-                    >
-                      <GitHubIcon className="h-4 w-4" />
-                      Source Code
-                      <ExternalLink className="h-3 w-3 opacity-50" />
-                    </a>
-                  )}
+                  <Badge
+                    label={project.type}
+                    className="border-(--color-border) text-(--color-text-muted)"
+                  />
                 </div>
-              )}
-            </div>
+
+                {/* Title & subtitle */}
+                <h2 className="font-display text-2xl font-bold tracking-tight text-(--color-text-primary)">
+                  {project.title}
+                </h2>
+                {project.subtitle && (
+                  <p className="mt-1 text-sm text-(--color-text-secondary)">
+                    {project.subtitle}
+                  </p>
+                )}
+
+                {/* Period · Role */}
+                {(project.period || project.role) && (
+                  <p className="mt-3 font-mono text-xs uppercase tracking-wider text-(--color-text-muted)">
+                    {[project.period, project.role].filter(Boolean).join(" · ")}
+                  </p>
+                )}
+
+                {/* Description */}
+                <p className="mt-4 text-sm leading-relaxed text-(--color-text-secondary)">
+                  {project.description}
+                </p>
+
+                {/* Highlights */}
+                {project.highlights && project.highlights.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-(--color-text-muted)">
+                      Highlights
+                    </h3>
+                    <ul className="space-y-2">
+                      {project.highlights.map((item, i) => (
+                        <li
+                          key={i}
+                          className="flex gap-2.5 text-sm leading-relaxed text-(--color-text-secondary)"
+                        >
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-(--color-signal)" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Tech stack */}
+                {project.tags && project.tags.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-(--color-text-muted)">
+                      Tech Stack
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-(--color-border) bg-(--color-bg) px-3 py-1 font-mono text-[11px] text-(--color-text-secondary)"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action links */}
+                {(project.website || project.source) && (
+                  <div className="mt-8 flex flex-wrap items-center gap-3">
+                    {project.website && (
+                      <a
+                        href={project.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full bg-(--color-text-primary) px-5 py-2.5 text-sm font-medium text-(--color-bg) transition-opacity hover:opacity-80"
+                      >
+                        <Globe className="h-4 w-4" />
+                        Live Preview
+                        <ExternalLink className="h-3 w-3 opacity-50" />
+                      </a>
+                    )}
+                    {project.source && (
+                      <a
+                        href={project.source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full border border-(--color-border) px-5 py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-text-muted) hover:text-(--color-text-primary)"
+                      >
+                        <GitHubIcon className="h-4 w-4" />
+                        Source Code
+                        <ExternalLink className="h-3 w-3 opacity-50" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox (renders above everything) */}
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          images={allImages}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
-    </AnimatePresence>
+    </>
   );
 }

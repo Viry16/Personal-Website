@@ -80,6 +80,7 @@ function rowToProject(r: ProjectRow): Project {
     highlights: r.highlights,
     tags: r.tags,
     image: r.image,
+    images: r.images ?? [],
     type: r.type as ProjectType,
     period: r.period,
     role: r.role,

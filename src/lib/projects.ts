@@ -9,7 +9,10 @@ export interface Project {
   description: string
   highlights: string[]
   tags: string[]
+  /** Primary/cover image shown on the card. */
   image: string
+  /** Additional gallery images shown in the modal carousel. */
+  images?: string[]
   type: ProjectType
   period: string
   role: string
@@ -47,6 +50,7 @@ export const PROJECTS: Project[] = [
       "Arduino",
     ],
     image: "/projects/amcs.jpg",
+    images: ["/projects/amcs-2.jpg"],
     type: "Hardware",
     period: "Feb – May 2026",
     role: "AI Engineer",
@@ -65,6 +69,7 @@ export const PROJECTS: Project[] = [
     ],
     tags: ["React", "TypeScript", "HTML5 Canvas", "Vite"],
     image: "/projects/clearity.png",
+    images: ["/projects/clearity-2.png"],
     type: "Software",
     period: "April 2025",
     role: "Frontend",
@@ -82,6 +87,7 @@ export const PROJECTS: Project[] = [
     ],
     tags: ["Next.js", "FastAPI", "Llama 3", "Ollama", "SQLite", "RAG"],
     image: "/projects/scio.png",
+    images: ["/projects/scio-2.png", "/projects/scio-3.png"],
     type: "Software",
     period: "Jan – Feb 2026",
     role: "Front End",
@@ -98,6 +104,7 @@ export const PROJECTS: Project[] = [
     ],
     tags: ["ESP32", "Python", "Computer Vision", "React", "Real-time Sensors"],
     image: "/projects/factory-automation.jpg",
+    images: ["/projects/factory-automation-2.jpg"],
     type: "Hardware",
     period: "Mar – Apr 2026",
     role: "IoT & Back End",
@@ -106,3 +113,4 @@ export const PROJECTS: Project[] = [
 ]
 
 export const FEATURED_PROJECTS = PROJECTS.filter((p) => p.featured)
+

@@ -32,6 +32,8 @@ export const projects = pgTable("projects", {
   highlights: text("highlights").array().notNull(),
   tags: text("tags").array().notNull(),
   image: text("image").notNull(),
+  /** Additional gallery images (URLs or /api/images/… paths). */
+  images: text("images").array().notNull().default([]),
   type: text("type").notNull(), // "Software" | "Hardware"
   period: text("period").notNull(),
   role: text("role").notNull(),
