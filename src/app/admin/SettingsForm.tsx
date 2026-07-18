@@ -95,7 +95,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         <div className="flex items-start gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={logoPreview || "/assets/image/logo/logo.svg"}
+            src={logoPreview || "/image/logo/logo.svg"}
             alt=""
             className="h-16 w-16 shrink-0 rounded-lg border border-(--color-border) bg-zinc-900 object-contain p-2"
           />
@@ -113,7 +113,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
             <input
               name="logo"
               defaultValue={settings.logo}
-              placeholder="/assets/image/logo/logo.svg"
+              placeholder="/image/logo/logo.svg"
               className={inputClass}
             />
           </div>
@@ -153,7 +153,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         <input
           name="resume"
           defaultValue={settings.resume}
-          placeholder="/assets/cv/CV.pdf or https://…"
+          placeholder="/cv/CV.pdf or https://…"
           className={`${inputClass} mt-2`}
         />
         {errs.resume?.[0] && (
@@ -224,7 +224,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           <div className="flex items-start gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={aboutImgPreview || "/assets/image/profile_image/excel.webp"}
+              src={aboutImgPreview || "/image/profile_image/excel.webp"}
               alt=""
               className="h-20 w-20 shrink-0 rounded-xl border border-(--color-border) object-cover"
             />
@@ -242,7 +242,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
               <input
                 name="aboutImage"
                 defaultValue={settings.aboutImage}
-                placeholder="/assets/image/profile_image/photo.webp"
+                placeholder="/image/profile_image/photo.webp"
                 className={inputClass}
               />
             </div>

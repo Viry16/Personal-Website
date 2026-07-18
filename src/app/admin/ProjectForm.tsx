@@ -96,7 +96,7 @@ export function ProjectForm({
         <div className="flex items-start gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={preview || "/assets/image/logo/logo.svg"}
+            src={preview || "/image/logo/logo.svg"}
             alt=""
             className="h-20 w-32 shrink-0 rounded-lg border border-(--color-border) bg-(--color-surface) object-cover"
           />
@@ -111,7 +111,7 @@ export function ProjectForm({
             <input
               name="image"
               defaultValue={project?.image}
-              placeholder="…or /assets/projects/example.png or https://…"
+              placeholder="…or /projects/example.png or https://…"
               className={inputClass}
             />
           </div>

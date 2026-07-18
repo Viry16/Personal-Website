@@ -36,7 +36,7 @@ const PHOTOS: Photo[] = [
     title1: "Life every",
     title2: "day like",
     title3: "it's your last",
-    src: "/assets/image/profile_image/excel.webp", // User will replace
+    src: "/image/profile_image/excel.webp", // User will replace
   },
   {
     id: "photo-1",
@@ -45,7 +45,7 @@ const PHOTOS: Photo[] = [
     title1: "WICE",
     title2: "Silver",
     title3: "Medalist.",
-    src: "/assets/image/profile_image/wice.webp", // User will replace
+    src: "/image/profile_image/wice.webp", // User will replace
   },
   {
     id: "photo-2",
@@ -54,7 +54,7 @@ const PHOTOS: Photo[] = [
     title1: "Conquering",
     title2: "peaks and",
     title3: "dreams.",
-    src: "/assets/image/profile_image/gede.webp", // User will replace
+    src: "/image/profile_image/gede.webp", // User will replace
   },
   {
     id: "photo-3",
@@ -63,7 +63,7 @@ const PHOTOS: Photo[] = [
     title1: "Sunrise over",
     title2: "ancient",
     title3: "stupa.",
-    src: "/assets/image/profile_image/borobudur.webp", // User will replace
+    src: "/image/profile_image/borobudur.webp", // User will replace
   },
 ];
 

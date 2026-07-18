@@ -1,18 +1,20 @@
 import { BottomDock } from "@/components/BottomDock"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Terminal } from "@/components/sections/Terminal"
+import { AwardsSection } from "@/components/sections/AwardsSection"
 import { NowFeed } from "@/components/sections/NowFeed"
 import { DevelopmentFeed } from "@/components/sections/DevelopmentFeed"
-import { getSiteSettings, getNowItems } from "@/lib/data"
+import { getSiteSettings, getNowItems, getAwards } from "@/lib/data"
 import Image from "next/image"
 
 // Re-render at most once an hour so the GitHub commit feed stays fresh
 export const revalidate = 3600
 
 export default async function AboutPage() {
-  const [site, nowItems] = await Promise.all([
+  const [site, nowItems, awards] = await Promise.all([
     getSiteSettings(),
     getNowItems(),
+    getAwards(),
   ])
 
   // Split bio into paragraphs on blank lines
@@ -47,6 +49,8 @@ export default async function AboutPage() {
             </div>
           </div>
         </div>
+
+        <AwardsSection awards={awards} />
 
         <div className="mb-16">
           <h3 className="font-display text-sm font-medium text-(--color-text-primary) mb-6">Interactive Terminal</h3>

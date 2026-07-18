@@ -38,11 +38,11 @@ export const SITE: SiteSettings = {
   github: "https://github.com/Viry16",
   linkedin: "https://linkedin.com/in/excelviryan",
   instagram: "https://instagram.com/excelviryan12",
-  resume: "/assets/cv/CV_Excel%20Viryan.pdf",
-  logo: "/assets/image/logo/logo.svg",
+  resume: "/cv/CV_Excel%20Viryan.pdf",
+  logo: "/image/logo/logo.svg",
   aboutBio:
     "I'm Excel Viryan — an enthusiastic, curious software developer with a foundation in multimedia design and a deep focus on Artificial Intelligence. I'm a Sarjana Komputer (S.Kom.) candidate at President University in Cikarang, with a 3.87/4.00 GPA.\n\nI enjoy tackling complex challenges through intuitive UI/UX and smart automation — building robust backend architectures, bridging them with responsive frontends, and integrating Machine Learning, Deep Learning, and NLP models. I currently chair PURTC (Robotics & Technology Club) and am expanding my full-stack skills toward next-generation IoT solutions.",
-  aboutImage: "/assets/image/profile_image/excel.webp",
+  aboutImage: "/image/profile_image/excel.webp",
   heroTagline:
     "A software developer with roots in multimedia design and a deep focus on AI. I build robust backends, bridge them with responsive frontends, and integrate ML, deep learning, and NLP models — lately channeling all of it into next-generation IoT solutions.",
   terminalUsername: "excel_viryan",

@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { MotionProvider } from "@/components/MotionProvider";
 import { SiteDotField } from "@/components/SiteDotField";
 import { getSiteSettings } from "@/lib/data";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,6 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: site.title,
     description: site.description,
+    icons: {
+      icon: "/image/logo/logo.svg",
+    },
   };
 }
 
@@ -60,6 +64,7 @@ export default function RootLayout({
               {children}
             </div>
           </MotionProvider>
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

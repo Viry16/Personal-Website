@@ -56,10 +56,11 @@ export function getDb(): DrizzleDb | null {
         max: 3,
         // Don't hang forever waiting to open a socket to a cold/paused DB.
         connect_timeout: 10, // seconds
-        // NOTE: intentionally NO `idle_timeout` — the first query on a fresh
-        // pooler connection is slow (cold backend), while subsequent ones are
-        // ~90ms. Closing idle connections would make every request pay that
-        // cold cost again. Keeping them warm is what stops the timeout thrash.
+        // Proactively close connections that have been idle for 20s. This
+        // prevents Supabase's pooler from forcibly killing the socket (which
+        // causes CONNECTION_DESTROYED errors). The next query simply opens a
+        // fresh connection — the ~200ms cold-open is cheaper than crashing.
+        idle_timeout: 20, // seconds
         // Best-effort server-side cap. Supabase's transaction pooler applies
         // this inconsistently, so the data layer ALSO enforces a hard JS-side
         // timeout; this just lets abandoned queries die sooner when honored.

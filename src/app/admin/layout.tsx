@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { LayoutDashboard, Settings, ExternalLink, LogOut, Briefcase, Radio } from "lucide-react"
+import { LayoutDashboard, Settings, ExternalLink, LogOut, Briefcase, Radio, Award } from "lucide-react"
 import { verifySession } from "@/lib/auth/session"
 import { logout } from "@/app/actions/auth"
 
@@ -41,6 +41,13 @@ export default async function AdminLayout({
             >
               <Briefcase className="h-4 w-4" />
               Experiences
+            </Link>
+            <Link
+              href="/admin/awards"
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-medium text-(--color-text-secondary) transition-colors hover:bg-(--color-border)/50 hover:text-(--color-text-primary)"
+            >
+              <Award className="h-4 w-4" />
+              Awards
             </Link>
             <Link
               href="/admin/now"

@@ -2,34 +2,37 @@
 
 import { useActionState, useState } from "react"
 import Link from "next/link"
-import type { Experience } from "@/lib/experiences"
-import type { ExperienceFormState } from "@/app/actions/experiences"
+import type { Award } from "@/lib/awards"
+import type { AwardFormState } from "@/app/actions/awards"
 
 type Action = (
-  prev: ExperienceFormState,
+  prev: AwardFormState,
   formData: FormData
-) => Promise<ExperienceFormState>
+) => Promise<AwardFormState>
 
 const inputClass =
   "w-full rounded-lg border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-sm text-(--color-text-primary) outline-none transition-colors focus:border-(--color-text-muted)"
 
-export function ExperienceForm({
+export function AwardForm({
   action,
-  experience,
+  award,
   submitLabel,
 }: {
   action: Action
-  experience?: Experience
+  award?: Award
   submitLabel: string
 }) {
   const [state, formAction, pending] = useActionState<
-    ExperienceFormState,
+    AwardFormState,
     FormData
   >(action, {})
   const errs = state.fieldErrors ?? {}
 
   const [logoPreview, setLogoPreview] = useState<string | undefined>(
-    experience?.logo || undefined
+    award?.logo || undefined
+  )
+  const [imagePreview, setImagePreview] = useState<string | undefined>(
+    award?.image || undefined
   )
 
   return (
@@ -40,29 +43,29 @@ export function ExperienceForm({
         </p>
       )}
 
-      <Field label="Role / Title" error={errs.role}>
+      <Field label="Title" error={errs.title}>
         <input
-          name="role"
-          defaultValue={experience?.role}
-          placeholder="AI & IoT Engineer — Bootcamp"
+          name="title"
+          defaultValue={award?.title}
+          placeholder="Outstanding Performance Award"
           className={inputClass}
         />
       </Field>
 
-      <Field label="Company / Organization" error={errs.company}>
+      <Field label="Issuer / Organization" error={errs.issuer}>
         <input
-          name="company"
-          defaultValue={experience?.company}
-          placeholder="National Research and Innovation Agency (BRIN)"
+          name="issuer"
+          defaultValue={award?.issuer}
+          placeholder="President University"
           className={inputClass}
         />
       </Field>
 
-      <Field label="Date range" error={errs.date}>
+      <Field label="Date" error={errs.date}>
         <input
           name="date"
-          defaultValue={experience?.date}
-          placeholder="Feb – May 2026"
+          defaultValue={award?.date}
+          placeholder="May 2026"
           className={inputClass}
         />
       </Field>
@@ -98,11 +101,48 @@ export function ExperienceForm({
             />
             <input
               name="logo"
-              defaultValue={experience?.logo}
-              placeholder="/image/logo/company.svg"
+              defaultValue={award?.logo}
+              placeholder="/image/logo/issuer.svg"
               className={inputClass}
             />
           </div>
+        </div>
+      </Field>
+
+      <Field
+        label="Certificate Image"
+        hint="Upload a photo/scan of the certificate (optional)"
+        error={errs.image}
+      >
+        <div className="space-y-2">
+          {imagePreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imagePreview}
+              alt=""
+              className="w-full max-h-48 rounded-xl border border-(--color-border) bg-(--color-surface) object-contain"
+            />
+          ) : (
+            <div className="flex h-32 w-full items-center justify-center rounded-xl border border-dashed border-(--color-border) bg-(--color-surface) text-sm text-(--color-text-muted)">
+              No image uploaded
+            </div>
+          )}
+          <input
+            type="file"
+            name="imageFile"
+            accept="image/png,image/jpeg,image/webp,image/avif"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) setImagePreview(URL.createObjectURL(file))
+            }}
+            className="block w-full text-sm text-(--color-text-secondary) file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-(--color-border) file:bg-(--color-surface) file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-(--color-text-primary) hover:file:opacity-90"
+          />
+          <input
+            name="image"
+            defaultValue={award?.image}
+            placeholder="/image/certificates/cert.png"
+            className={inputClass}
+          />
         </div>
       </Field>
 
@@ -110,7 +150,22 @@ export function ExperienceForm({
         <textarea
           name="description"
           rows={4}
-          defaultValue={experience?.description}
+          defaultValue={award?.description}
+          placeholder="Describe what this award or certificate is for…"
+          className={inputClass}
+        />
+      </Field>
+
+      <Field
+        label="Credential URL"
+        hint="Link to verify the certificate (optional)"
+        error={errs.url}
+      >
+        <input
+          name="url"
+          type="url"
+          defaultValue={award?.url}
+          placeholder="https://www.credential.net/abc123"
           className={inputClass}
         />
       </Field>
@@ -123,7 +178,7 @@ export function ExperienceForm({
         <input
           name="sortOrder"
           type="number"
-          defaultValue={experience?.sortOrder ?? 0}
+          defaultValue={award?.sortOrder ?? 0}
           className={inputClass}
         />
       </Field>
@@ -137,7 +192,7 @@ export function ExperienceForm({
           {pending ? "Saving…" : submitLabel}
         </button>
         <Link
-          href="/admin/experiences"
+          href="/admin/awards"
           className="rounded-lg px-4 py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:text-(--color-text-primary)"
         >
           Cancel

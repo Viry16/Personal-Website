@@ -7,11 +7,12 @@ import { loadEnvConfig } from "@next/env"
 loadEnvConfig(process.cwd())
 
 import { getDb } from "./index"
-import { projects, siteSettings, experiences, nowItems } from "./schema"
+import { projects, siteSettings, experiences, nowItems, awards } from "./schema"
 import { PROJECTS } from "../projects"
 import { SITE } from "../site"
 import { EXPERIENCES } from "../experiences"
 import { NOW_ITEMS } from "../now-items"
+import { AWARDS } from "../awards"
 
 async function main() {
   const db = getDb()
@@ -88,6 +89,26 @@ async function main() {
       }))
     )
     console.log(`✓ Seeded ${NOW_ITEMS.length} now items`)
+  }
+
+  // 5. Awards — only if the table is empty.
+  const existingAwards = await db.select({ id: awards.id }).from(awards)
+  if (existingAwards.length > 0) {
+    console.log(`• Skipped awards (${existingAwards.length} already present)`)
+  } else {
+    await db.insert(awards).values(
+      AWARDS.map((a, i) => ({
+        title: a.title,
+        issuer: a.issuer,
+        date: a.date,
+        logo: a.logo,
+        image: a.image,
+        description: a.description,
+        url: a.url,
+        sortOrder: i,
+      }))
+    )
+    console.log(`✓ Seeded ${AWARDS.length} awards`)
   }
 
   console.log("Done.")

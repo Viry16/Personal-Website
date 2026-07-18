@@ -130,6 +130,23 @@ export const nowItems = pgTable("now_items", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
+/**
+ * Awards and certificates shown on the about page.
+ */
+export const awards = pgTable("awards", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  issuer: text("issuer").notNull(),
+  date: text("date").notNull(),
+  logo: text("logo").notNull().default(""),
+  image: text("image").notNull().default(""),
+  description: text("description").notNull(),
+  url: text("url").notNull().default(""),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
 export type ProjectRow = typeof projects.$inferSelect
 export type NewProjectRow = typeof projects.$inferInsert
 export type SiteSettingsRow = typeof siteSettings.$inferSelect
@@ -137,3 +154,4 @@ export type ImageRow = typeof images.$inferSelect
 export type LeaderboardRow = typeof leaderboard.$inferSelect
 export type ExperienceRow = typeof experiences.$inferSelect
 export type NowItemRow = typeof nowItems.$inferSelect
+export type AwardRow = typeof awards.$inferSelect

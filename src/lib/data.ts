@@ -10,15 +10,18 @@ import {
   siteSettings,
   experiences as experiencesTable,
   nowItems as nowItemsTable,
+  awards as awardsTable,
   type ProjectRow,
   type SiteSettingsRow,
   type ExperienceRow,
   type NowItemRow,
+  type AwardRow,
 } from "./db/schema"
 import { PROJECTS, type Project, type ProjectType, type ProjectStatus } from "./projects"
 import { SITE, type SiteSettings } from "./site"
 import { EXPERIENCES, type Experience } from "./experiences"
 import { NOW_ITEMS, type NowItem } from "./now-items"
+import { AWARDS, type Award } from "./awards"
 
 /** Hard ceiling for any single DB round-trip before we fall back to seed data. */
 const QUERY_TIMEOUT_MS = 8000
@@ -103,10 +106,11 @@ export const getProjects = cache(async (): Promise<Project[]> => {
       .select()
       .from(projectsTable)
       .orderBy(asc(projectsTable.sortOrder), desc(projectsTable.createdAt)),
-    [] as ProjectRow[],
+    null as ProjectRow[] | null,
     "getProjects",
   )
-  return rows.length ? rows.map(rowToProject) : PROJECTS
+  if (rows === null) return PROJECTS
+  return rows.map(rowToProject)
 })
 
 export async function getFeaturedProjects(): Promise<Project[]> {
@@ -183,10 +187,11 @@ export const getExperiences = cache(async (): Promise<Experience[]> => {
       .select()
       .from(experiencesTable)
       .orderBy(asc(experiencesTable.sortOrder), desc(experiencesTable.createdAt)),
-    [] as ExperienceRow[],
+    null as ExperienceRow[] | null,
     "getExperiences",
   )
-  return rows.length ? rows.map(rowToExperience) : EXPERIENCES
+  if (rows === null) return EXPERIENCES
+  return rows.map(rowToExperience)
 })
 
 export async function getExperienceById(id: number): Promise<Experience | null> {
@@ -220,8 +225,51 @@ export const getNowItems = cache(async (): Promise<NowItem[]> => {
       .select()
       .from(nowItemsTable)
       .orderBy(asc(nowItemsTable.sortOrder), desc(nowItemsTable.createdAt)),
-    [] as NowItemRow[],
+    null as NowItemRow[] | null,
     "getNowItems",
   )
-  return rows.length ? rows.map(rowToNowItem) : NOW_ITEMS
+  if (rows === null) return NOW_ITEMS
+  return rows.map(rowToNowItem)
 })
+
+// ── Awards ───────────────────────────────────────────────────────────────────
+
+function rowToAward(r: AwardRow): Award {
+  return {
+    id: r.id,
+    title: r.title,
+    issuer: r.issuer,
+    date: r.date,
+    logo: r.logo,
+    image: r.image,
+    description: r.description,
+    url: r.url,
+    sortOrder: r.sortOrder,
+  }
+}
+
+export const getAwards = cache(async (): Promise<Award[]> => {
+  const db = getDb()
+  if (!db) return AWARDS
+  const rows = await withDbTimeout(
+    db
+      .select()
+      .from(awardsTable)
+      .orderBy(asc(awardsTable.sortOrder), desc(awardsTable.createdAt)),
+    null as AwardRow[] | null,
+    "getAwards",
+  )
+  if (rows === null) return AWARDS // Timeout or error, show dummy
+  return rows.map(rowToAward)
+})
+
+export async function getAwardById(id: number): Promise<Award | null> {
+  const db = getDb()
+  if (!db) return null
+  const rows = await withDbTimeout(
+    db.select().from(awardsTable).where(eq(awardsTable.id, id)).limit(1),
+    [] as AwardRow[],
+    "getAwardById",
+  )
+  return rows[0] ? rowToAward(rows[0]) : null
+}
