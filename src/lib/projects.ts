@@ -13,6 +13,8 @@ export interface Project {
   image: string
   /** Additional gallery images shown in the modal carousel. */
   images?: string[]
+  /** How the image should scale: "cover" (crop) or "contain" (show full). */
+  imageFit?: "cover" | "contain"
   type: ProjectType
   period: string
   role: string

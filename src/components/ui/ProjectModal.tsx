@@ -135,7 +135,11 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                       alt={`${project.title} — image ${activeSlide + 1}`}
                       fill
                       sizes="(min-width: 768px) 640px, 100vw"
-                      className="object-cover"
+                      className={
+                        project.imageFit === "contain"
+                          ? "object-contain bg-black/5"
+                          : "object-cover"
+                      }
                       priority
                     />
                   </motion.div>

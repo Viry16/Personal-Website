@@ -203,6 +203,17 @@ export function ProjectForm({
           </select>
         </Field>
 
+        <Field label="Image Fit Mode" error={errs.imageFit as any}>
+          <select
+            name="imageFit"
+            defaultValue={project?.imageFit ?? "cover"}
+            className={inputClass}
+          >
+            <option value="cover">Cover (Crop)</option>
+            <option value="contain">Contain (Full Image)</option>
+          </select>
+        </Field>
+
         <Field label="Status" error={errs.status}>
           <select
             name="status"

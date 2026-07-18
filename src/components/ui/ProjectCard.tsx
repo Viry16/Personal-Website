@@ -46,6 +46,7 @@ export function ProjectCard({
   description,
   tags,
   image,
+  imageFit,
   website,
   source,
   status,
@@ -75,7 +76,10 @@ export function ProjectCard({
           alt={title}
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+          className={cn(
+            "transition-transform duration-700 ease-out group-hover:scale-[1.05]",
+            imageFit === "contain" ? "object-contain bg-black/5" : "object-cover"
+          )}
         />
 
         {status && (

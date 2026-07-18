@@ -81,6 +81,7 @@ function rowToProject(r: ProjectRow): Project {
     tags: r.tags,
     image: r.image,
     images: r.images ?? [],
+    imageFit: r.imageFit as "cover" | "contain",
     type: r.type as ProjectType,
     period: r.period,
     role: r.role,

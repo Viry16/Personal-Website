@@ -24,6 +24,7 @@ const ProjectSchema = z.object({
   // Optional here: an uploaded file (handled separately) can supply the image.
   image: z.string().optional(),
   images: z.string().optional(), // JSON encoded array
+  imageFit: z.enum(["cover", "contain"]).optional(),
   type: z.enum(["Software", "Hardware"]),
   period: z.string().optional(),
   role: z.string().optional(),
@@ -54,6 +55,7 @@ function parseForm(formData: FormData) {
     tags: str(formData.get("tags")),
     image: formData.get("image"),
     images: formData.get("images"),
+    imageFit: formData.get("imageFit"),
     type: formData.get("type"),
     period: str(formData.get("period")),
     role: str(formData.get("role")),
@@ -163,6 +165,7 @@ export async function createProject(
       tags: toList(d.tags),
       image: img.url,
       images: additionalImgs.urls ?? [],
+      imageFit: (d.imageFit as "cover" | "contain") ?? "cover",
       type: d.type,
       period: d.period ?? "",
       role: d.role ?? "",
@@ -221,6 +224,7 @@ export async function updateProject(
         tags: toList(d.tags),
         image: img.url,
         images: additionalImgs.urls ?? [],
+        imageFit: (d.imageFit as "cover" | "contain") ?? "cover",
         type: d.type,
         period: d.period ?? "",
         role: d.role ?? "",

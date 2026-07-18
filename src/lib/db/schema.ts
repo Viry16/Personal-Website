@@ -34,6 +34,8 @@ export const projects = pgTable("projects", {
   image: text("image").notNull(),
   /** Additional gallery images (URLs or /api/images/… paths). */
   images: text("images").array().notNull().default([]),
+  /** How the image should scale: "cover" (crop) or "contain" (show full). */
+  imageFit: text("image_fit").notNull().default("cover"),
   type: text("type").notNull(), // "Software" | "Hardware"
   period: text("period").notNull(),
   role: text("role").notNull(),
