@@ -24,9 +24,10 @@ const DOC_MIME = new Set(["application/pdf"])
 const MANAGED_RE = /^\/api\/images\/(\d+)$/
 
 /**
- * Validates and stores an uploaded file, returning the public path
- * (`/api/images/{id}`) to persist. Throws on invalid input. The route serves
- * whatever MIME was stored, so this backs images and PDFs alike.
+ * Validates and stores an uploaded file, returning an internal reference path
+ * (`/api/images/{id}`). Images are served directly via that route; the resume
+ * PDF is served through the dedicated `/api/resume` endpoint. Throws on
+ * invalid input.
  */
 async function saveUpload(
   file: File,

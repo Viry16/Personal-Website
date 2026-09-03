@@ -77,7 +77,7 @@ export function HomePreview({ site = SITE }: { site?: SiteSettings }) {
 
           <motion.div variants={item} className="flex flex-wrap items-center gap-4 pt-2">
             <motion.a
-              href={site.resume}
+              href="/api/resume"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.06, y: -2 }}

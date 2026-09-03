@@ -30,7 +30,7 @@ export type SiteSettings = {
  */
 export const SITE: SiteSettings = {
   name: "Excel Viryan",
-  title: "Excel Viryan | Console",
+  title: "Excel Viryan | Software Developer",
   description:
     "AI/ML engineer, full-stack developer, and IoT builder at President University.",
   email: "viryanexcel@gmail.com",
@@ -38,7 +38,7 @@ export const SITE: SiteSettings = {
   github: "https://github.com/Viry16",
   linkedin: "https://linkedin.com/in/excelviryan",
   instagram: "https://instagram.com/excelviryan12",
-  resume: "/cv/CV_Excel%20Viryan.pdf",
+  resume: "/api/resume",
   logo: "/image/logo/logo.svg",
   aboutBio:
     "I'm Excel Viryan — an enthusiastic, curious software developer with a foundation in multimedia design and a deep focus on Artificial Intelligence. I'm a Sarjana Komputer (S.Kom.) candidate at President University in Cikarang, with a 3.87/4.00 GPA.\n\nI enjoy tackling complex challenges through intuitive UI/UX and smart automation — building robust backend architectures, bridging them with responsive frontends, and integrating Machine Learning, Deep Learning, and NLP models. I currently chair PURTC (Robotics & Technology Club) and am expanding my full-stack skills toward next-generation IoT solutions.",
