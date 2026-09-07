@@ -78,6 +78,9 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: site.logo,
       apple: site.logo,
     },
+    verification: {
+      google: "W_OqsZa1jzOTuOlVtBMu8c6E_22dKvFsOwLQwiPCIkU",
+    },
   };
 }
 
