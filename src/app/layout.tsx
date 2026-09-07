@@ -25,11 +25,58 @@ const spaceGrotesk = Space_Grotesk({
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteSettings();
+  
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
+
   return {
-    title: site.title,
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: site.title,
+      template: `%s | ${site.name}`,
+    },
     description: site.description,
+    keywords: ["Excel Viryan", "Software Developer", "AI Engineer", "IoT Builder", "Portfolio", "President University"],
+    authors: [{ name: site.name }],
+    creator: site.name,
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: "/",
+      title: site.title,
+      description: site.description,
+      siteName: site.name,
+      images: [
+        {
+          url: site.aboutImage,
+          width: 1200,
+          height: 630,
+          alt: site.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: site.title,
+      description: site.description,
+      creator: "@excelviryan",
+      images: [site.aboutImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     icons: {
-      icon: "/image/logo/logo.svg",
+      icon: site.logo,
+      apple: site.logo,
     },
   };
 }
