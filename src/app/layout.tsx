@@ -95,27 +95,28 @@ export default async function RootLayout({
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
 
   // Define JSON-LD schema for Google to recognize the site logo and name
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: site.title,
-    alternateName: site.name,
-    url: baseUrl,
-    image: new URL(site.aboutImage, baseUrl).toString(),
-    publisher: {
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: site.name,
+      alternateName: site.title,
+      url: baseUrl,
+    },
+    {
+      "@context": "https://schema.org",
       "@type": "Organization",
       name: site.name,
-      logo: {
-        "@type": "ImageObject",
-        url: new URL(site.logo, baseUrl).toString(),
-      },
+      url: baseUrl,
+      logo: new URL(site.logo, baseUrl).toString(),
+      image: new URL(site.aboutImage, baseUrl).toString(),
       sameAs: [
         site.github,
         site.linkedin,
         site.instagram,
       ].filter(Boolean),
-    },
-  };
+    }
+  ];
 
   return (
     <html
