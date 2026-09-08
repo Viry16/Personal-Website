@@ -84,11 +84,39 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const site = await getSiteSettings();
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
+
+  // Define JSON-LD schema for Google to recognize the site logo and name
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.title,
+    alternateName: site.name,
+    url: baseUrl,
+    image: new URL(site.aboutImage, baseUrl).toString(),
+    publisher: {
+      "@type": "Organization",
+      name: site.name,
+      logo: {
+        "@type": "ImageObject",
+        url: new URL(site.logo, baseUrl).toString(),
+      },
+      sameAs: [
+        site.github,
+        site.linkedin,
+        site.instagram,
+      ].filter(Boolean),
+    },
+  };
+
   return (
     <html
       lang="en"
@@ -96,6 +124,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        {/* Inject JSON-LD structured data for SEO (Google Search Logo) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* Global interactive dot background — theme-aware (glow + palette
               swap between light/dark). pointer-events-none so it never blocks
