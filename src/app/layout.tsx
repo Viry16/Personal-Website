@@ -75,8 +75,8 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     icons: {
-      icon: site.logo,
-      apple: site.logo,
+      icon: "/image/logo/favicon.svg",
+      apple: "/image/logo/favicon.svg",
     },
     verification: {
       google: "W_OqsZa1jzOTuOlVtBMu8c6E_22dKvFsOwLQwiPCIkU",
@@ -108,7 +108,7 @@ export default async function RootLayout({
       "@type": "Organization",
       name: site.name,
       url: baseUrl,
-      logo: new URL(site.logo, baseUrl).toString(),
+      logo: new URL("/image/logo/favicon.svg", baseUrl).toString(),
       image: new URL(site.aboutImage, baseUrl).toString(),
       sameAs: [
         site.github,
